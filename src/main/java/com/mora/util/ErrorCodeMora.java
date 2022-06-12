@@ -11,11 +11,19 @@ public enum ErrorCodeMora {
 	ERR_100101(100101, "Market is closed please try again later"),
 	ERR_100102(100102, "No Commodity is available for the given market"),
 	ERR_100103(100103, "Error in fetching response from Nafaes service"),
-	ERR_100104(100104, "Purchase amount value is missing"), ERR_660043(660043, "Login Failed"),
+	ERR_100104(100104, "Purchase amount value is missing"),
+	ERR_660043(660043, "Login Failed"),
 	ERR_60000(60000, "Success"), ERR_66007(66007, "Password is required"),
 	ERR_660032(660032, "National ID/Iqama is required"),
 	ERR_100105(100105, "Error in fetching response from Nafaes Market status"),
 	ERR_100106(100106, "Error in fetching response from Nafaes service"),
+	ERR_100108(100108, "Exception in login"),
+	ERR_100110(100110, "Error in getting data from CustomerCommunication"),
+	ERR_100111(100111, "Current password entered is incorrect"),
+	ERR_100112(100112, "Error in updating the new password"),
+	ERR_100113(100113, "Password updation successfull"),
+	ERR_100109(100109, "No Data in login"),
+
 	ERR_100107(100107, "Error in fetching response from Nafaes service");
 
 	private int errCode;
