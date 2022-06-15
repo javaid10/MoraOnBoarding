@@ -23,7 +23,7 @@ public enum ErrorCodeMora {
 	ERR_100112(100112, "Error in updating the new password"),
 	ERR_100113(100113, "Password updation successfull"),
 	ERR_100109(100109, "No Data in login"),
-
+	ERR_100114(100104, "Error in updating AAId"),
 	ERR_100107(100107, "Error in fetching response from Nafaes service");
 
 	private int errCode;
