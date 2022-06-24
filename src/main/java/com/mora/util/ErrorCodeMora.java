@@ -1,10 +1,10 @@
 package com.mora.util;
 
+import com.google.gson.JsonObject;
 import com.konylabs.middleware.api.processor.manager.FabricResponseManager;
 import com.konylabs.middleware.dataobject.Param;
 import com.konylabs.middleware.dataobject.Result;
 import com.temenos.onboarding.utils.Constants;
-import com.google.gson.JsonObject;
 
 public enum ErrorCodeMora {
 	// third party errorr codes
@@ -13,7 +13,9 @@ public enum ErrorCodeMora {
 	ERR_100103(100103, "Error in fetching response from Nafaes service"),
 	ERR_100104(100104, "Purchase amount value is missing"),
 	ERR_660043(660043, "Login Failed"),
-	ERR_60000(60000, "Success"), ERR_66007(66007, "Password is required"),
+	ERR_60000(60000, "Success"), 
+	ERR_66007(66007, "Password is required"),	
+	ERR_100115(100105, "Invalid Username or Password"),
 	ERR_660032(660032, "National ID/Iqama is required"),
 	ERR_100105(100105, "Error in fetching response from Nafaes Market status"),
 	ERR_100106(100106, "Error in fetching response from Nafaes service"),
@@ -24,6 +26,8 @@ public enum ErrorCodeMora {
 	ERR_100113(100113, "Password updation successfull"),
 	ERR_100109(100109, "No Data in login"),
 	ERR_100114(100104, "Error in updating AAId"),
+	ERR_100117(100107, "Error in fetching Enviornment Properties"),
+	ERR_100116(100106, "Missing nationalID field"),
 	ERR_100107(100107, "Error in fetching response from Nafaes service");
 
 	private int errCode;

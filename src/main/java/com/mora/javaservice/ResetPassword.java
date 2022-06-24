@@ -75,7 +75,7 @@ public class ResetPassword implements JavaService2 {
 	private Boolean validatePassword(String dbPassword, String currentPassword) throws Exception {
 		boolean isPasswordValid = false;
 		try {
-			  
+			isPasswordValid = BCrypt.checkpw(dbPassword, currentPassword);
 		} catch (Exception exception) {
 		}
 		logger.debug(

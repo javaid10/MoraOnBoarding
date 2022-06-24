@@ -30,7 +30,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
+	<classpathentry exported="true" kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
@@ -46,13 +46,12 @@
 			<attribute name="optional" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="D:/DownloadsPC/infinity-api-commons.jar"/>
-	<classpathentry kind="lib" path="D:/DownloadsPC/OnBoardingServices.jar"/>
-	<classpathentry kind="lib" path="D:/DownloadsPC/OnboardingCommons.jar"/>
-	<classpathentry kind="lib" path="D:/DownloadsPC/middleware-commons/middleware-commons-9.2.1.5.jar"/>
-	<classpathentry kind="lib" path="D:/DownloadsPC/middleware-api/middleware-api-9.2.1.5.jar"/>
-	<classpathentry kind="lib" path="C:/Users/rvgof/Downloads/Emdha-IJARAH/IJARAH/lib/eSignEMDHA.jar"/>
-	<classpathentry kind="lib" path="C:/Users/rvgof/Downloads/Emdha-IJARAH/IJARAH/lib/commons-io-2.4.jar"/>
-	<classpathentry kind="lib" path="C:/Users/rvgof/Downloads/Emdha-IJARAH/IJARAH/eSignEmdhaCLI.jar"/>
+	<classpathentry exported="true" kind="lib" path="D:/DownloadsPC/dbp-commonutilityservices.jar"/>
+	<classpathentry exported="true" kind="lib" path="D:/DownloadsPC/dbp-nonproductservices.jar"/>
+	<classpathentry exported="true" kind="lib" path="D:/DownloadsPC/dbp-productservices.jar"/>
+	<classpathentry exported="true" kind="lib" path="D:/DownloadsPC/DocumentStorage-0.0.1-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="D:/DownloadsPC/infinity-api-commons.jar"/>
+	<classpathentry exported="true" kind="lib" path="D:/DownloadsPC/OnboardingCommons.jar"/>
+	<classpathentry exported="true" kind="lib" path="D:/DownloadsPC/OnBoardingServices.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

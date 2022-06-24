@@ -4,9 +4,12 @@ package com.mora.util;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import com.konylabs.middleware.api.ServicesManager;
+import com.konylabs.middleware.api.ServicesManagerHelper;
 import com.konylabs.middleware.api.processor.manager.FabricRequestManager;
 import com.konylabs.middleware.controller.DataControllerRequest;
+import com.konylabs.middleware.exceptions.MiddlewareException;
 import com.temenos.infinity.api.commons.config.EnvironmentConfigurationsHandler;
 public enum EnvironmentConfigurationsMora {
 	CURRENCY_CODE,
@@ -57,4 +60,12 @@ public enum EnvironmentConfigurationsMora {
 		logger.info("### returning value:" + value + ", for key:" + key);
 		return value;
 	}
+	
+	public static String getConfiguredServerProperty(String key) throws MiddlewareException {
+	    return getConfiguredServerProperty(ServicesManagerHelper.getServicesManager(), key);
+	  }
+	  
+	  public static String getConfiguredServerProperty(ServicesManager servicesManager, String key) {
+	    return servicesManager.getConfigurableParametersHelper().getServerProperty(key);
+	  }
 }

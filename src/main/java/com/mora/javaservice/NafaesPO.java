@@ -57,7 +57,7 @@ public class NafaesPO implements JavaService2 {
 				logger.error("Response from nafaes service", res);
 				result.addParam("referenceNo", JsonResponse.getJSONArray("response").getJSONObject(0).getString("referenceNo") != null	? JsonResponse.getJSONArray("response").getJSONObject(0).getString("referenceNo") : "");
 				result.addParam("statusCode", JsonResponse.getJSONArray("response").getJSONObject(0).getString("statusCode") != null	? JsonResponse.getJSONArray("response").getJSONObject(0).getString("statusCode") : "");	
-				result.addParam("uuid",JsonResponse.getJSONObject("header").getString("uuid") != null? JsonResponse.getJSONObject("header").getString("uuid") : "");	
+				// result.addParam("uuid",JsonResponse.getJSONObject("header").getString("uuid") != null? JsonResponse.getJSONObject("header").getString("uuid") : "");	
 			}
 			else{
 				  result.addParam("ResponseCode", ErrorCodeMora.ERR_100103.toString());
@@ -66,9 +66,6 @@ public class NafaesPO implements JavaService2 {
 		}catch(Exception e){
 			logger.error("Error in Result object creation", e);
 		}
-	
-		
-
 		return result;
 	}
 

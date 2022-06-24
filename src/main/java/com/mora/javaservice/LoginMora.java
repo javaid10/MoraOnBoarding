@@ -2,6 +2,8 @@ package com.mora.javaservice;
 
 import java.util.HashMap;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import com.dbp.core.fabric.extn.DBPServiceExecutorBuilder;
@@ -10,12 +12,10 @@ import com.konylabs.middleware.controller.DataControllerRequest;
 import com.konylabs.middleware.controller.DataControllerResponse;
 import com.konylabs.middleware.dataobject.Result;
 import com.mora.util.ErrorCodeMora;
-import com.temenos.onboarding.crypto.PasswordGenerator;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.temenos.infinity.api.commons.encrypt.BCrypt;
 
 public class LoginMora implements JavaService2 {
-	private static final Logger logger = LogManager.getLogger(NafaesPO.class);
+	private static final Logger logger = LogManager.getLogger(LoginMora.class);
 
 	@Override
 	public Object invoke(String methodId, Object[] inputArray, DataControllerRequest request,
@@ -30,64 +30,103 @@ public class LoginMora implements JavaService2 {
 			result.addParam("Message", ErrorCodeMora.ERR_66007.getErrorMessage());
 		} else {
 			String res = "";
-			PasswordGenerator passwordGenerator = new PasswordGenerator();
-			String encPassword = passwordGenerator.hashPassword(request.getParameter("Password"));
-			HashMap<String, Object> imap = new HashMap<>();
-			imap.put("UserName", request.getParameter("NationalID"));
-			imap.put("Password", encPassword);
-			res = DBPServiceExecutorBuilder.builder().withServiceId("MooraJsonServices")
-					.withOperationId("getLoginCustomer").withRequestParameters(imap).build().getResponse();
-			JsonResponse = new JSONObject(res);
-			logger.debug("Response from login", res);
-			if (JsonResponse.getJSONArray("login").length() > 0) {
-				if (JsonResponse.getJSONArray("login").getJSONObject(0).getString("responseCode").equals("000")
-						|| JsonResponse.getJSONArray("login").getJSONObject(0).getString("responseCode")
-								.equals("404")) {
-					result.addParam("ResponseCode", ErrorCodeMora.ERR_60000.toString());
-					result.addParam("Message", ErrorCodeMora.ERR_60000.getErrorMessage());
-					// try {
-						HashMap<String, Object> userInputs = new HashMap<>();
+			HashMap<String, Object> input = new HashMap<String, Object>();
+			String dbPassword = "";
+			
+				input.put("$filter", "UserName eq " + request.getParameter("NationalID"));
+				res = DBPServiceExecutorBuilder.builder().withServiceId("DBXDBServices")
+						.withOperationId("dbxdb_customer_get").withRequestParameters(input).build().getResponse();
+//				JsonResponse = new JSONObject(res);
+//				dbPassword = JsonResponse.getJSONArray("customer").getJSONObject(0).getString("Password");
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//				logger.error("Exception in getting custoemr data", e);
+//			}
 
-						userInputs.put("$filter", "UserName eq " + request.getParameter("NationalID"));
-						String resp = DBPServiceExecutorBuilder.builder().withServiceId("DBXDBServices")
-								.withOperationId("dbxdb_customer_get").withRequestParameters(userInputs).build()
-								.getResponse();
-						// if(){
-							result.addParam("NationalID", new JSONObject(resp).getJSONArray("customer").getJSONObject(0)
-									.getString("UserName"));
-							result.addParam("Customer_id",
-									new JSONObject(resp).getJSONArray("customer").getJSONObject(0).getString("id"));
-							result.addParam("ArrangementId", new JSONObject(resp).getJSONArray("customer").getJSONObject(0)
-										.getString("arrangementId") != null ? new JSONObject(resp).getJSONArray("customer").getJSONObject(0)
-												.getString("arrangementId"):"" );
-							result.addParam("MobileNumber", getMobileNumber(result, request,
-									new JSONObject(resp).getJSONArray("customer").getJSONObject(0).getString("id")));
-						// } else {
-						// 	result.addParam("ResponseCode", ErrorCodeMora.ERR_100110.toString());
-						// 	result.addParam("Message", ErrorCodeMora.ERR_100110.getErrorMessage());
-						// }
+			// PasswordGenerator passwordGenerator = new PasswordGenerator();
+			// String encPassword =
+			// passwordGenerator.hashPassword(request.getParameter("Password"));
+			// HashMap<String, Object> imap = new HashMap<>();
+			// imap.put("UserName", request.getParameter("NationalID"));
+			// imap.put("Password", encPassword);
+			// res = DBPServiceExecutorBuilder.builder().withServiceId("MooraJsonServices")
+			// .withOperationId("getLoginCustomer").withRequestParameters(imap).build().getResponse();
+			// JsonResponse = new JSONObject(res);
+			// logger.debug("Response from login", res);
+			// if (JsonResponse.getJSONArray("login").length() > 0) {
+			// if
+			// (JsonResponse.getJSONArray("login").getJSONObject(0).getString("responseCode").equals("000")
+			// ||
+			// JsonResponse.getJSONArray("login").getJSONObject(0).getString("responseCode")
+			// .equals("404"))
+				JsonResponse = new JSONObject(res);
+		if( JsonResponse.getJSONArray("customer").isNull(0)) {
+			result = ErrorCodeMora.ERR_100115.updateResultObject(result);
+		}else {
+			dbPassword = JsonResponse.getJSONArray("customer").getJSONObject(0).getString("Password");
+			if (validatePassword(dbPassword, request.getParameter("Password").toString())) {
+				result.addParam("ResponseCode", ErrorCodeMora.ERR_60000.toString());
+				result.addParam("Message", ErrorCodeMora.ERR_60000.getErrorMessage());
+				// try {
+				HashMap<String, Object> userInputs = new HashMap<>();
 
-					// } catch (Exception e) {
-					// 	logger.error("Error in login", e);
-					// 	result.addParam("ResponseCode", ErrorCodeMora.ERR_100108.toString());
-					// 	result.addParam("Message", ErrorCodeMora.ERR_100108.getErrorMessage());
-					// }
+				userInputs.put("$filter", "UserName eq " + request.getParameter("NationalID"));
+				String resp = DBPServiceExecutorBuilder.builder().withServiceId("DBXDBServices")
+						.withOperationId("dbxdb_customer_get").withRequestParameters(userInputs).build().getResponse();
+				// if(){
+				result.addParam("NationalID",
+						new JSONObject(resp).getJSONArray("customer").getJSONObject(0).getString("UserName"));
+				result.addParam("Customer_id",
+						new JSONObject(resp).getJSONArray("customer").getJSONObject(0).getString("id"));
+				result.addParam("ArrangementId",
+						new JSONObject(resp).getJSONArray("customer").getJSONObject(0)
+								.getString("arrangementId") != null
+										? new JSONObject(resp).getJSONArray("customer").getJSONObject(0)
+												.getString("arrangementId")
+										: "");
+				result.addParam("MobileNumber", getMobileNumber(result, request,
+						new JSONObject(resp).getJSONArray("customer").getJSONObject(0).getString("id")));
+				// } else {
+				// result.addParam("ResponseCode", ErrorCodeMora.ERR_100110.toString());
+				// result.addParam("Message", ErrorCodeMora.ERR_100110.getErrorMessage());
+				// }
 
-				} else {
-					result.addParam("ResponseCode", ErrorCodeMora.ERR_660043.toString());
-					result.addParam("Message", ErrorCodeMora.ERR_660043.getErrorMessage());
-				}
+				// } catch (Exception e) {
+				// logger.error("Error in login", e);
+				// result.addParam("ResponseCode", ErrorCodeMora.ERR_100108.toString());
+				// result.addParam("Message", ErrorCodeMora.ERR_100108.getErrorMessage());
+				// }
+
 			} else {
 				result.addParam("ResponseCode", ErrorCodeMora.ERR_660043.toString());
 				result.addParam("Message", ErrorCodeMora.ERR_660043.getErrorMessage());
 			}
 		}
+			
+
+			// } else {
+			// result.addParam("ResponseCode", ErrorCodeMora.ERR_660043.toString());
+			// result.addParam("Message", ErrorCodeMora.ERR_660043.getErrorMessage());
+			// }
+		}
 
 		return result;
 	}
-	//function for authenticating using password
+	// function for authenticating using password
 
+	private Boolean validatePassword(String dbPassword, String currentPassword) throws Exception {
+		boolean isPasswordValid = false;
+		try {
+			isPasswordValid = BCrypt.checkpw(currentPassword, dbPassword);
 
+		} catch (Exception exception) {
+			logger.error("Error in validating password", exception);
+			throw exception;
+		}
+		logger.debug(
+				(new StringBuilder()).append("Response from isPasswordValid  : ").append(isPasswordValid).toString());
+		return Boolean.valueOf(isPasswordValid);
+	}
 
 	public String getMobileNumber(Result result, DataControllerRequest request, String customerId) {
 		String mobileNumber = null;
