@@ -17,7 +17,6 @@ import com.temenos.infinity.api.commons.encrypt.BCrypt;
 public class LoginMora implements JavaService2 {
 	private static final Logger logger = LogManager.getLogger(LoginMora.class);
 
-	@Override
 	public Object invoke(String methodId, Object[] inputArray, DataControllerRequest request,
 			DataControllerResponse response) throws Exception {
 		Result result = new Result();
@@ -68,7 +67,7 @@ public class LoginMora implements JavaService2 {
 				result.addParam("ResponseCode", ErrorCodeMora.ERR_60000.toString());
 				result.addParam("Message", ErrorCodeMora.ERR_60000.getErrorMessage());
 				// try {
-				HashMap<String, Object> userInputs = new HashMap<>();
+				HashMap<String, Object> userInputs = new HashMap<String, Object>();
 
 				userInputs.put("$filter", "UserName eq " + request.getParameter("NationalID"));
 				String resp = DBPServiceExecutorBuilder.builder().withServiceId("DBXDBServices")
@@ -132,7 +131,7 @@ public class LoginMora implements JavaService2 {
 		String mobileNumber = null;
 		String resp = null;
 		try {
-			HashMap<String, Object> userInputs = new HashMap<>();
+			HashMap<String, Object> userInputs = new HashMap<String, Object>();
 			userInputs.put("$filter", "Customer_id eq " + customerId);
 			resp = DBPServiceExecutorBuilder.builder().withServiceId("DBXDBServices")
 					.withOperationId("dbxdb_customercommunication_get").withRequestParameters(userInputs).build()

@@ -6,7 +6,6 @@ import com.konylabs.middleware.controller.DataControllerResponse;
 
 public class Test implements JavaService2 {
 
-	@Override
 	public Object invoke(String methodId, Object[] inputArray, DataControllerRequest request,
 			DataControllerResponse response) throws Exception {
 		// TODO Auto-generated method stub

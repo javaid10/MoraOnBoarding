@@ -16,7 +16,7 @@ import com.mora.util.ErrorCodeMora;
 public class GetPartyId implements DataPreProcessor2 {
 	private static final Logger logger = LogManager.getLogger(GetPartyId.class);
 
-	@Override
+
 	public boolean execute(HashMap inputMap, DataControllerRequest request, DataControllerResponse response,
 			Result result) throws Exception {
 		String res="";

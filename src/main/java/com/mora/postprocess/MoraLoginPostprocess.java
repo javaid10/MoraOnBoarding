@@ -15,11 +15,11 @@ import com.konylabs.middleware.dataobject.Result;
 public class MoraLoginPostprocess implements DataPostProcessor2 {
 	private static final Logger logger = LogManager.getLogger(MoraLoginPostprocess.class);
 
-	@Override
+
 	public Object execute(Result result, DataControllerRequest request, DataControllerResponse response)
 			throws Exception {
 		JSONObject JsonResponse = null;
-		HashMap<String, Object> userInputs = new HashMap<>();
+		HashMap<String, Object> userInputs = new HashMap<String, Object>();
 		try {
 
 			if (result.getNameOfAllParams().contains("ResponseCode")
@@ -48,7 +48,7 @@ public class MoraLoginPostprocess implements DataPostProcessor2 {
 		String mobileNumber = null;
 		String resp = null;
 		try{
-			HashMap<String, Object> userInputs = new HashMap<>();
+			HashMap<String, Object> userInputs = new HashMap<String, Object>();
 			userInputs.put("$filter", "Customer_id eq " + customerId);
 			 resp = DBPServiceExecutorBuilder.builder().withServiceId("DBXDBServices")
 					.withOperationId("dbxdb_customercommunication_get").withRequestParameters(userInputs).build().getResponse();

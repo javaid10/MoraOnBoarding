@@ -17,7 +17,6 @@ import com.mora.util.ErrorCodeMora;
 public class AbsherOTP implements JavaService2 {
 	private static final Logger logger = LogManager.getLogger(NafaesPO.class);
 
-	@Override
 	public Object invoke(String methodId, Object[] inputArray, DataControllerRequest request,
 			DataControllerResponse response) throws Exception {
 		Result result = new Result();

@@ -15,7 +15,6 @@ import com.konylabs.middleware.dataobject.Result;
 public class UpdateArranagementId implements JavaService2 {
 	private static final Logger logger = LogManager.getLogger(UpdateArranagementId.class);
 
-	@Override
 	public Object invoke(String methodId, Object[] inputArray, DataControllerRequest request,
 			DataControllerResponse response) throws Exception {
 		Result result = new Result();
