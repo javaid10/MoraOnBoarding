@@ -15,8 +15,9 @@ public enum EnvironmentConfigurationsMora {
 	CURRENCY_CODE,
 	PURCHASER_BANK,
 	LANGUAGE_CODE,
-	
+	NAFAES_COMMODITY_CODE,
 	NAFAES_TRANSACTION_TYPE,
+	MORA_SESSION_TIMEOUT,
 	IOB_API_ACCESS_TOKEN;
 
 	private static final Logger logger = LogManager.getLogger(EnvironmentConfigurationsMora.class);
