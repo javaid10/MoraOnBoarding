@@ -41,6 +41,10 @@ public class ForgotPassword implements JavaService2 {
 			
 			String mobId = request.getParameter("mobileNumber");
 			String nationalId = request.getParameter("nationalId");
+			
+			logger.error("NationalId from DB"+nanId);
+	         logger.error("MobileNumber from DB"+mobNumber);
+
 			if(mobNumber.equalsIgnoreCase(mobId) && nanId.equalsIgnoreCase(nationalId) ) {
 //				MobileOwnerVerificationAPI
 //				VerifyMobileNumber

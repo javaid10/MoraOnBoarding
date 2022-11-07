@@ -40,8 +40,10 @@ public enum ErrorCodeMora {
 	ERR_100125(100125, "Access token missing"),
 	ERR_100126(100126, "Access token missing"),
 	ERR_100127(100127, "Missing IBAN number"),
+	   ERR_100133(100133, "Missing Status in sanad callback"),
 	ERR_10152(10152,"jfbhdbf"),
-	ERR_100128(100128, "Please upload iban file");
+	ERR_100128(100128, "Please upload iban file"),
+	ERR_100129(100129, "Please enter correct combination of nationalId and mobile number");
 	private int errCode;
 	private String errMsg;
 

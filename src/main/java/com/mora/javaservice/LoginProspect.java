@@ -43,7 +43,8 @@ public class LoginProspect implements JavaService2 {
 			
 			JsonResponse = new JSONObject(res);
 			if (JsonResponse.getJSONArray("customer").isNull(0)) {
-				result = ErrorCodeMora.ERR_100115.updateResultObject(result);
+                ErrorCodeMora.ERR_100115.setErrorCode(result);
+
 			} else {
 				dbPassword = JsonResponse.getJSONArray("customer").getJSONObject(0).getString("Password");
 				if (validatePassword(dbPassword, request.getParameter("Password").toString())) {
@@ -68,14 +69,11 @@ public class LoginProspect implements JavaService2 {
 					result.addRecord(userAttrRecord);
 
 				} else {
-					result = ErrorCodeMora.ERR_660043.updateResultObject(result);
-
+					ErrorCodeMora.ERR_660043.setErrorCode(result);
 				}
-
 			}
 		}else {
-			result = ErrorCodeMora.ERR_660044.updateResultObject(result);
-
+			ErrorCodeMora.ERR_660044.setErrorCode(result);
 		}
 
 		return result;

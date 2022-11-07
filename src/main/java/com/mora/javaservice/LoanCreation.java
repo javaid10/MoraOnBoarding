@@ -16,196 +16,201 @@ import com.konylabs.middleware.dataobject.Result;
 import com.mora.util.ErrorCodeMora;
 
 public class LoanCreation implements JavaService2 {
-	private static final Logger logger = LogManager.getLogger(LoanCreation.class);
+    private static final Logger logger = LogManager.getLogger(LoanCreation.class);
 
-	@Override
-	public Object invoke(String methodId, Object[] inputArray, DataControllerRequest dcRequest,
-			DataControllerResponse dcResponse) throws Exception {
-		Result result = new Result();
-		String partyId = "";
-		String cusId = "";
-		String appId = "";
-		if (preProcess(dcRequest, dcResponse, result)) {
-			String ids[] = getPartyId(dcRequest);
-			partyId = ids[1];
-			cusId = ids[0];
-			appId = ids[2];
-			if (!partyId.isEmpty() && !cusId.isEmpty()) {
-				JSONObject cusData = getProspoectCustomer(dcRequest, dcResponse, partyId);
-				if (cusData.length() > 0) {
-					if (activateProspectCustomer(partyId, cusData)) {
-						if (createLoan(cusId, partyId,appId)){
-							result.addParam("status", "success");
-						result.addParam("partyId", partyId);
-						}else{
-							result.addParam("status", "failure");
-							result = ErrorCodeMora.ERR_100122.updateResultObject(result);
-						}
-							
-					} else {
-						result.addParam("status", "failed");
-						result = ErrorCodeMora.ERR_100121.updateResultObject(result);
-					}
-				}
-			}
-		}
-		return result;
-	}
+    @Override
+    public Object invoke(String methodId, Object[] inputArray, DataControllerRequest dcRequest,
+            DataControllerResponse dcResponse) throws Exception {
+        Result result = new Result();
+        String partyId = "";
+        String cusId = "";
+        String loanAmt = "";
+        String appId = "";
+        String mobileNumber = "";
+        if (preProcess(dcRequest, dcResponse, result)) {
 
-	public boolean createLoan(String cusId, String partyId, String appId) throws DBPApplicationException {
-		String tenor ="";
-		String loanAmt = "";
-		String rate = "";
-		JSONObject jsonResponse = getLoanDetails(appId);
-		if(jsonResponse.getJSONArray("records").length() > 0){
-			tenor = jsonResponse.getJSONArray("records").getJSONObject(0).getString("tenor");
-			if(tenor.endsWith("M")) {
-			
-			}else {
-				tenor = tenor +"M";
-			}
-			
-			loanAmt = jsonResponse.getJSONArray("records").getJSONObject(0).getString("loanAmount");
-			if(loanAmt.contains(",")) {
-				loanAmt = loanAmt.replace(",", "");
-			}else if(loanAmt.contains(".00")) {
-				loanAmt = loanAmt.replace(".", "");
-			}
-		
-			
-			rate = jsonResponse.getJSONArray("records").getJSONObject(0).getString("approx");
-			HashMap<String, Object> map = new HashMap<String, Object>();
-			map.put("amount", loanAmt);
-			map.put("fixed", rate);
-			map.put("term", tenor);
-			map.put("fixedAmount", "100");
-			map.put("partyId",partyId);
-			String respo = DBPServiceExecutorBuilder.builder().withServiceId("MoraT24Service")
-					.withOperationId("LoanCreation").withRequestParameters(map).build().getResponse();
-					JSONObject loanresponse = new JSONObject(respo);
-					if(loanresponse.getString("status").equalsIgnoreCase("success")) {
-						String aaid = loanresponse.getString("arrangementId");
-						HashMap<String, Object> aaiDmap = new HashMap<String, Object>();
-						aaiDmap.put("arrangementId", aaid);
-						aaiDmap.put("id", appId);
-						String jsonresp = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
-						.withOperationId("dbxdb_tbl_customerapplication_update").withRequestParameters(aaiDmap).build().getResponse();
-						JSONObject jrep = new JSONObject(jsonresp);
-						if(jrep != null) {
-						
-						logger.error("Created loan");
-						return true;
-						}
-					}
-		}
-		return false;
-	}
-	public JSONObject getLoanDetails(String appId) throws DBPApplicationException {
-		
-		HashMap<String, Object> map = new HashMap<String, Object>();
-		map.put("applicationID", appId);
-		String respo = DBPServiceExecutorBuilder.builder().withServiceId("DBXDBServices")
-		.withOperationId("dbxgetLoanSimulation").withRequestParameters(map).build().getResponse();
-		JSONObject jsonResponse = new JSONObject(respo);
-		return jsonResponse;
-	}
+            String currAppID = getPartyId(dcRequest);
+            JSONObject loanDet = getLoanDetails(currAppID);
+            if (loanDet.getJSONArray("tbl_customerapplication").length() > 0) {
+                loanAmt = loanDet.getJSONArray("tbl_customerapplication").getJSONObject(0).getString("offerAmount");
+                mobileNumber = loanDet.getJSONArray("tbl_customerapplication").getJSONObject(0).getString("mobile");
+                String zero = "0";
+                String phonenum = zero + mobileNumber.substring(3);
+                HashMap<String, Object> map = new HashMap<String, Object>();
+                map.put("debtor_phone_number", phonenum);
+                map.put("total_value", loanAmt);
+                map.put("reference_id", currAppID);
+                map.put("national_id", dcRequest.getParameter("nationalId"));
+                String jsonresp = DBPServiceExecutorBuilder.builder().withServiceId("MSDocumentMora")
+                        .withOperationId("SanadCreatePython").withRequestParameters(map).build()
+                        .getResponse();
+                result.addParam("ResponseCode", ErrorCodeMora.ERR_60000.toString());
+                result.addParam("Message", ErrorCodeMora.ERR_60000.getErrorMessage());
+            }
+        }
 
-	public JSONObject getProspoectCustomer(DataControllerRequest request, DataControllerResponse response,
-			String partyId) {
+        return result;
+    }
 
-		String respo = "";
-		HashMap<String, Object> map = new HashMap<String, Object>();
+    public boolean createLoan(String cusId, String partyId, String appId) throws DBPApplicationException {
+        String tenor = "";
+        String loanAmt = "";
+        String rate = "";
+        JSONObject jsonResponse = getLoanDetails(appId);
+        if (jsonResponse.getJSONArray("records").length() > 0) {
+            tenor = jsonResponse.getJSONArray("records").getJSONObject(0).getString("tenor");
+            if (tenor.endsWith("M")) {
 
-		map.put("customerId", partyId);
+            } else {
+                tenor = tenor + "M";
+            }
 
-		try {
-			respo = DBPServiceExecutorBuilder.builder().withServiceId("MoraT24ContainerService")
-					.withOperationId("GetCustomerData").withRequestParameters(map).build().getResponse();
+            loanAmt = jsonResponse.getJSONArray("records").getJSONObject(0).getString("loanAmount");
+            if (loanAmt.contains(",")) {
+                loanAmt = loanAmt.replace(",", "");
+            } else if (loanAmt.contains(".00")) {
+                loanAmt = loanAmt.replace(".", "");
+            }
 
-		} catch (DBPApplicationException e) {
-			e.printStackTrace();
-		}
-		JSONObject jsonResponse = new JSONObject(respo);
-		return jsonResponse;
+            rate = jsonResponse.getJSONArray("records").getJSONObject(0).getString("approx");
+            HashMap<String, Object> map = new HashMap<String, Object>();
+            map.put("amount", loanAmt);
+            map.put("fixed", rate);
+            map.put("term", tenor);
+            map.put("fixedAmount", "100");
+            map.put("partyId", partyId);
+            String respo = DBPServiceExecutorBuilder.builder().withServiceId("MoraT24Service")
+                    .withOperationId("LoanCreation").withRequestParameters(map).build().getResponse();
+            JSONObject loanresponse = new JSONObject(respo);
+            if (loanresponse.getString("status").equalsIgnoreCase("success")) {
+                String aaid = loanresponse.getString("arrangementId");
+                HashMap<String, Object> aaiDmap = new HashMap<String, Object>();
+                aaiDmap.put("arrangementId", aaid);
+                aaiDmap.put("id", appId);
+                String jsonresp = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
+                        .withOperationId("dbxdb_tbl_customerapplication_update").withRequestParameters(aaiDmap).build()
+                        .getResponse();
+                JSONObject jrep = new JSONObject(jsonresp);
+                if (jrep != null) {
 
-	}
+                    logger.error("Created loan");
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
-	public boolean activateProspectCustomer(String partyId, JSONObject cusDataL) {
-		HashMap<String, Object> map = new HashMap<String, Object>();
-		String resp = "";
-		map.put("partyId", partyId);
-		map.put("dateOfBirth", cusDataL.getString("dateOfBirth"));
-		map.put("displayName", cusDataL.getString("displayName"));
-		map.put("customerName", cusDataL.getString("customerName"));
-		map.put("phoneNumber", cusDataL.getString("phoneNumber"));
-		map.put("customerMnemonic", cusDataL.getString("customerMnemonic"));
-		//map.put("title", cusDataL.getString("title"));
-		map.put("givenName", cusDataL.getString("givenName"));
-		map.put("lastName", cusDataL.getString("lastName"));
-		//map.put("street", cusDataL.getString("street"));
-		//map.put("address", cusDataL.getString("address"));
+    public JSONObject getLoanDetails(String appId) throws DBPApplicationException {
 
-		try {
-			resp = DBPServiceExecutorBuilder.builder().withServiceId("MoraT24Service")
-					.withOperationId("ActivateCustomer").withRequestParameters(map).build().getResponse();
+        HashMap<String, Object> map = new HashMap<String, Object>();
+        
+        map.put("$filter", "applicationID eq " + appId);
 
-		} catch (DBPApplicationException e) {
-			e.printStackTrace();
-		}
+        String respo = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
+                .withOperationId("dbxdb_tbl_customerapplication_get").withRequestParameters(map).build().getResponse();
+        JSONObject jsonResponse = new JSONObject(respo);
+        return jsonResponse;
+    }
 
-		if (!resp.isEmpty()) {
-			JSONObject jobj = new JSONObject(resp);
-			if (jobj.getString("status").equalsIgnoreCase("success")) {
-				return true;
-			}
+    public JSONObject getProspoectCustomer(DataControllerRequest request, DataControllerResponse response,
+            String partyId) {
 
-		}
+        String respo = "";
+        HashMap<String, Object> map = new HashMap<String, Object>();
 
-		return false;
-	}
+        map.put("customerId", partyId);
 
-	public String getCustomerInfo(String partyId) throws DBPApplicationException {
+        try {
+            respo = DBPServiceExecutorBuilder.builder().withServiceId("MoraT24ContainerService")
+                    .withOperationId("GetCustomerData").withRequestParameters(map).build().getResponse();
 
-		String customerInfo = "";
-		String respStr = null;
-		HashMap<String, Object> map = new HashMap<String, Object>();
+        } catch (DBPApplicationException e) {
+            e.printStackTrace();
+        }
+        JSONObject jsonResponse = new JSONObject(respo);
+        return jsonResponse;
 
-		map.put("$filter", "partyId eq " + partyId);
-		respStr = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
-				.withOperationId("dbxdb_tempPros_get").withRequestParameters(map).build().getResponse();
+    }
 
-		return respStr;
+    public boolean activateProspectCustomer(String partyId, JSONObject cusDataL) {
+        HashMap<String, Object> map = new HashMap<String, Object>();
+        String resp = "";
+        map.put("partyId", partyId);
+        map.put("dateOfBirth", cusDataL.getString("dateOfBirth"));
+        map.put("displayName", cusDataL.getString("displayName"));
+        map.put("customerName", cusDataL.getString("customerName"));
+        map.put("phoneNumber", cusDataL.getString("phoneNumber"));
+        map.put("customerMnemonic", cusDataL.getString("customerMnemonic"));
+        // map.put("title", cusDataL.getString("title"));
+        map.put("givenName", cusDataL.getString("givenName"));
+        map.put("lastName", cusDataL.getString("lastName"));
+        // map.put("street", cusDataL.getString("street"));
+        // map.put("address", cusDataL.getString("address"));
 
-	}
+        try {
+            resp = DBPServiceExecutorBuilder.builder().withServiceId("MoraT24Service")
+                    .withOperationId("ActivateCustomer").withRequestParameters(map).build().getResponse();
 
-	public String[] getPartyId(DataControllerRequest dcRequest) throws DBPApplicationException {
+        } catch (DBPApplicationException e) {
+            e.printStackTrace();
+        }
 
-		String partyId = "";
-		String customerId = "";
-		String applicationId ="";
-		HashMap<String, Object> input = new HashMap<String, Object>();
-		String res = null;
-		input.put("$filter", "UserName eq " + dcRequest.getParameter("nationalId"));
-		res = DBPServiceExecutorBuilder.builder().withServiceId("DBXDBServices").withOperationId("dbxdb_customer_get")
-				.withRequestParameters(input).build().getResponse();
-		if (res != null) {
-			JSONObject JsonResponse = new JSONObject(res);
-			customerId = JsonResponse.getJSONArray("customer").getJSONObject(0).getString("id");
-			partyId = JsonResponse.getJSONArray("customer").getJSONObject(0).getString("partyId");
-			applicationId = JsonResponse.getJSONArray("customer").getJSONObject(0).getString("currentAppId");
-		}
-		return new String[] { customerId, partyId ,applicationId };
-	}
+        if (!resp.isEmpty()) {
+            JSONObject jobj = new JSONObject(resp);
+            if (jobj.getString("status").equalsIgnoreCase("success")) {
+                return true;
+            }
 
-	private boolean preProcess(DataControllerRequest dcRequest, DataControllerResponse dcResponse, Result result) {
-		if (dcRequest.getParameter("nationalId").isEmpty()) {
-			ErrorCodeMora.ERR_100116.updateResultObject(result);
-			return false;
+        }
 
-		} else {
-			return true;
-		}
+        return false;
+    }
 
-	}
+    public String getCustomerInfo(String partyId) throws DBPApplicationException {
+
+        String customerInfo = "";
+        String respStr = null;
+        HashMap<String, Object> map = new HashMap<String, Object>();
+
+        map.put("$filter", "partyId eq " + partyId);
+        respStr = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
+                .withOperationId("dbxdb_tempPros_get").withRequestParameters(map).build().getResponse();
+
+        return respStr;
+
+    }
+
+    public String getPartyId(DataControllerRequest dcRequest) throws DBPApplicationException {
+
+        String partyId = "";
+        String customerId = "";
+        String applicationId = "";
+        HashMap<String, Object> input = new HashMap<String, Object>();
+        String res = null;
+        input.put("$filter", "UserName eq " + dcRequest.getParameter("nationalId"));
+        res = DBPServiceExecutorBuilder.builder().withServiceId("DBXDBServices").withOperationId("dbxdb_customer_get")
+                .withRequestParameters(input).build().getResponse();
+
+        JSONObject jsonResponseCus = new JSONObject(res);
+        if (res != null) {
+            JSONObject JsonResponse = new JSONObject(res);
+            customerId = JsonResponse.getJSONArray("customer").getJSONObject(0).getString("id");
+            partyId = JsonResponse.getJSONArray("customer").getJSONObject(0).getString("partyId");
+            applicationId = JsonResponse.getJSONArray("customer").getJSONObject(0).getString("currentAppId");
+        }
+        return applicationId;
+    }
+
+    private boolean preProcess(DataControllerRequest dcRequest, DataControllerResponse dcResponse, Result result) {
+        if (dcRequest.getParameter("nationalId").isEmpty()) {
+            ErrorCodeMora.ERR_100116.updateResultObject(result);
+            return false;
+
+        } else {
+            return true;
+        }
+
+    }
 
 }

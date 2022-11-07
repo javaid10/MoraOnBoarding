@@ -2,6 +2,8 @@ D:\MoraFinance\WorkspaceMora\MoraOnboarding\src\main\java\com\mora\javaservice\F
 D:\MoraFinance\WorkspaceMora\MoraOnboarding\src\main\java\com\mora\javaservice\LoanSimulation.java
 D:\MoraFinance\WorkspaceMora\MoraOnboarding\src\main\java\com\mora\util\DataLogging.java
 D:\MoraFinance\WorkspaceMora\MoraOnboarding\src\main\java\com\mora\javaservice\NafaesPO.java
+D:\MoraFinance\WorkspaceMora\MoraOnboarding\src\main\java\com\mora\javaservice\SanadCallback.java
+D:\MoraFinance\WorkspaceMora\MoraOnboarding\src\main\java\com\mora\javaservice\CallbackSanad.java
 D:\MoraFinance\WorkspaceMora\MoraOnboarding\src\main\java\com\mora\javaservice\LoanContractProcessor.java
 D:\MoraFinance\WorkspaceMora\MoraOnboarding\src\main\java\com\mora\javaservice\UpdateMobileNumber.java
 D:\MoraFinance\WorkspaceMora\MoraOnboarding\src\main\java\com\mora\postprocess\LoggingServiceResetPassword.java
@@ -12,6 +14,7 @@ D:\MoraFinance\WorkspaceMora\MoraOnboarding\src\main\java\com\mora\preprocess\Ge
 D:\MoraFinance\WorkspaceMora\MoraOnboarding\src\main\java\com\mora\util\ErrorCodeMora.java
 D:\MoraFinance\WorkspaceMora\MoraOnboarding\src\main\java\com\mora\javaservice\IbanUpload.java
 D:\MoraFinance\WorkspaceMora\MoraOnboarding\src\main\java\com\mora\javaservice\ResetPassword.java
+D:\MoraFinance\WorkspaceMora\MoraOnboarding\src\main\java\com\mora\javaservice\NafithCallback.java
 D:\MoraFinance\WorkspaceMora\MoraOnboarding\src\main\java\com\mora\javaservice\PromissoryNote.java
 D:\MoraFinance\WorkspaceMora\MoraOnboarding\src\main\java\com\mora\javaservice\EmdhaSign.java
 D:\MoraFinance\WorkspaceMora\MoraOnboarding\src\main\java\com\mora\javaservice\LoanCreation.java
