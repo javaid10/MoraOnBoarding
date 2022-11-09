@@ -43,7 +43,9 @@ public enum ErrorCodeMora {
 	   ERR_100133(100133, "Missing Status in sanad callback"),
 	ERR_10152(10152,"jfbhdbf"),
 	ERR_100128(100128, "Please upload iban file"),
-	ERR_100129(100129, "Please enter correct combination of nationalId and mobile number");
+	ERR_100129(100129, "Please enter correct combination of nationalId and mobile number"),
+	ERR_100130(100130, "Missing base64 document field"),
+	ERR_100131(100131, "Failed to process the EMDHA document Signing");
 	private int errCode;
 	private String errMsg;
 

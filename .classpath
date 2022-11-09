@@ -18,12 +18,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry excluding="**" kind="src" output="target/test-classes" path="src/test/resources">
-		<attributes>
-			<attribute name="test" value="true"/>
-			<attribute name="maven.pomderived" value="true"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
@@ -45,10 +39,16 @@
 			<attribute name="optional" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/rvgof/OneDrive/Documents/infinity-api-commons.jar"/>
-	<classpathentry kind="lib" path="C:/Users/rvgof/OneDrive/Documents/OnboardingCommons.jar"/>
-	<classpathentry kind="lib" path="C:/Users/rvgof/OneDrive/Documents/OnBoardingServices.jar"/>
-	<classpathentry kind="lib" path="C:/Users/rvgof/OneDrive/Documents/docmanagementapi-services.jar"/>
-	<classpathentry kind="lib" path="C:/Users/rvgof/OneDrive/Documents/DocumentStorage-0.0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="libs/commons-io-2.4.jar"/>
+	<classpathentry kind="lib" path="libs/dbp-nonproductservices.jar"/>
+	<classpathentry kind="lib" path="libs/dbp-productservices.jar"/>
+	<classpathentry kind="lib" path="libs/docmanagementapi-services.jar"/>
+	<classpathentry kind="lib" path="libs/DocumentStorage-0.0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="libs/gson-2.8.5.jar"/>
+	<classpathentry kind="lib" path="libs/infinity-api-commons.jar"/>
+	<classpathentry kind="lib" path="libs/log4j-1.2.17.jar"/>
+	<classpathentry kind="lib" path="libs/OnboardingCommons.jar"/>
+	<classpathentry kind="lib" path="libs/OnBoardingServices.jar"/>
+	<classpathentry kind="lib" path="libs/eSignEMDHA-1.2.9.0.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
