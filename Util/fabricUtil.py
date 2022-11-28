@@ -41,32 +41,32 @@ import requests
 # toast = ToastNotifier()
 
 
-# mfcliFilePath = "mfcli.jar"
-# mavenBuildPath = "D:\\MoraFinance\\WorkspaceMora\\\MoraOnboarding"
-# jarFilePath = "D:\\MoraFinance\\WorkspaceMora\\\MoraOnboarding\\target\\MoraOnboarding-0.0.1-SNAPSHOT.jar"
-# jarName = "MoraOnboarding-0.0.1-SNAPSHOT.jar"
-# targetJarName = "MoraOnboarding-0.0.1-SNAPSHOT.jar"
-# fabricURL = "https://api2.staging.morafinance.com:8443"
-# authURL = "https://api2.staging.morafinance.com:8443"
-# appName = "Origination"
-# fabricUser = "rajath@bank.com"
-# fabricPassword = "Kony@1234"
-# envName = "Dev"
-# toast = ToastNotifier()
-
-
 mfcliFilePath = "mfcli.jar"
 mavenBuildPath = "D:\\MoraFinance\\WorkspaceMora\\\MoraOnboarding"
 jarFilePath = "D:\\MoraFinance\\WorkspaceMora\\\MoraOnboarding\\target\\MoraOnboarding-0.0.1-SNAPSHOT.jar"
 jarName = "MoraOnboarding-0.0.1-SNAPSHOT.jar"
 targetJarName = "MoraOnboarding-0.0.1-SNAPSHOT.jar"
-fabricURL = "http://172.18.160.22:8080"
-authURL = "http://172.18.160.22:8080"
+fabricURL = "https://api2.staging.morafinance.com:8443"
+authURL = "https://api2.staging.morafinance.com:8443"
 appName = "Origination"
 fabricUser = "rajath@bank.com"
 fabricPassword = "Kony@1234"
-envName = "LocalDevEnv"
+envName = "Dev"
 toast = ToastNotifier()
+
+
+# mfcliFilePath = "mfcli.jar"
+# mavenBuildPath = "D:\\MoraFinance\\WorkspaceMora\\\MoraOnboarding"
+# jarFilePath = "D:\\MoraFinance\\WorkspaceMora\\\MoraOnboarding\\target\\MoraOnboarding-0.0.1-SNAPSHOT.jar"
+# jarName = "MoraOnboarding-0.0.1-SNAPSHOT.jar"
+# targetJarName = "MoraOnboarding-0.0.1-SNAPSHOT.jar"
+# fabricURL = "http://172.18.160.22:8080"
+# authURL = "http://172.18.160.22:8080"
+# appName = "Origination"
+# fabricUser = "rajath@bank.com"
+# fabricPassword = "Kony@1234"
+# envName = "LocalDevEnv"
+# toast = ToastNotifier()
 
 def mavenBuild():
     print("Building app")

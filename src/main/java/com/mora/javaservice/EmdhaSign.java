@@ -20,13 +20,13 @@ public class EmdhaSign implements JavaService2 {
 
 		if (preProcess(dcRequest, dcResponse, result)) {
 			if (dcRequest.getParameter("documentType").equals("1")) {
-				result.addParam(new Param("status", "sucess"));
-				result.addParam(new Param("documentHash","8f13b6b53259601353e8e84851fc069defb5730429cffe2c0fb2b7df6ca9001f"));
-				result.addParam(new Param("transactionId","8cf11f09066647f1a7160e43b1e3c7ef"));
+//				result.addParam(new Param("status", "sucess"));
+//				result.addParam(new Param("documentHash","8f13b6b53259601353e8e84851fc069defb5730429cffe2c0fb2b7df6ca9001f"));
+//				result.addParam(new Param("transactionId","8cf11f09066647f1a7160e43b1e3c7ef"));
 			} else if (dcRequest.getParameter("documentType").equals("2")) {
-				result.addParam(new Param("status", "sucess"));
-				result.addParam(new Param("documentHash","8f13b6b53259601353e8e84851fc069defb5730429cffe2c0fb2b7df6ca9001f"));
-				result.addParam(new Param("transactionId","8cf11f09066647f1a7160e43b1e3c7ef"));
+//				result.addParam(new Param("status", "sucess"));
+//				result.addParam(new Param("documentHash","8f13b6b53259601353e8e84851fc069defb5730429cffe2c0fb2b7df6ca9001f"));
+//				result.addParam(new Param("transactionId","8cf11f09066647f1a7160e43b1e3c7ef"));
 			}
 		}
 

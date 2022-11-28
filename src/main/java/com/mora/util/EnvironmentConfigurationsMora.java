@@ -18,6 +18,7 @@ public enum EnvironmentConfigurationsMora {
 	NAFAES_COMMODITY_CODE,
 	NAFAES_TRANSACTION_TYPE,
 	MORA_SESSION_TIMEOUT,
+	PAYMENT_SCHEDULE_SLEEP_VALUE,
 	IOB_API_ACCESS_TOKEN;
 
 	private static final Logger logger = LogManager.getLogger(EnvironmentConfigurationsMora.class);
