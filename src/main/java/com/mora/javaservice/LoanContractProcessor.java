@@ -84,7 +84,6 @@ public class LoanContractProcessor implements JavaService2 {
                         String sabbNumber = jsonSchedule.getJSONArray("body").getJSONObject(0).optString("sabbNumber");
                         String sadadNumber = jsonSchedule.getJSONArray("body").getJSONObject(0).optString("sadadNumber");
                         
-<<<<<<< Updated upstream
                         
                         JSONArray instDates = new JSONArray();
                         
@@ -100,28 +99,7 @@ public class LoanContractProcessor implements JavaService2 {
                             interestAmount.put(jsonSchedule.getJSONArray("body").getJSONObject(i).optString("interestAmount"));
                             principalAmount.put(jsonSchedule.getJSONArray("body").getJSONObject(i).optString("principalAmount"));
                             scheduleType.put(jsonSchedule.getJSONArray("body").getJSONObject(i).optString("scheduleType"));
-=======
-                    
 
-                       JSONArray scheduleType = new JSONArray();
-
-
-                        String []  instDates = new String[lengthArr];
-                        String []  outstandingAmount = new String[lengthArr];
-                        String []  totalAmount = new String[lengthArr];
-                        String []  interestAmount = new String[lengthArr];
-                        String []  principalAmount = new String[lengthArr];
-//                        String []  scheduleType = new String[lengthArr];
-                        for(int i=0;i<jsonSchedule.getJSONArray("body").length();i++) {
-                            instDates[i] = jsonSchedule.getJSONArray("body").getJSONObject(i).optString("paymentDate");
-                            outstandingAmount[i] = jsonSchedule.getJSONArray("body").getJSONObject(i).optString("outstandingAmount");
-                            totalAmount[i] = jsonSchedule.getJSONArray("body").getJSONObject(i).optString("totalAmount");
-                            interestAmount[i] = jsonSchedule.getJSONArray("body").getJSONObject(i).optString("interestAmount");
-                            principalAmount[i] = jsonSchedule.getJSONArray("body").getJSONObject(i).optString("principalAmount");
-//                            scheduleType[i] = jsonSchedule.getJSONArray("body").getJSONObject(i).optString("scheduleType");
-                            scheduleType.put(jsonSchedule.getJSONArray("body").getJSONObject(i).optString("scheduleType"));
-
->>>>>>> Stashed changes
                         }
                         
                                               
