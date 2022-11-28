@@ -44,6 +44,11 @@ public class EmdhaSign implements JavaService2 {
                 JSONObject customDetails = new JSONObject(getDetails);
 
                 if (customDetails.getJSONArray("records").getJSONObject(0).length() > 0) {
+
+                    String docBase = customDetails.getJSONArray("records").getJSONObject(0).optString("loan_contract");
+                    
+                    docBase = docBase.substring(2, docBase.length()-1);
+                    
                     HashMap<String, Object> params = new HashMap<>();
                     params.put("signedBy",
                             customDetails.getJSONArray("records").getJSONObject(0).optString("FullName"));
@@ -57,7 +62,7 @@ public class EmdhaSign implements JavaService2 {
                     params.put("regionProvince",
                             customDetails.getJSONArray("records").getJSONObject(0).optString("City_id"));
                     params.put("docBase64",
-                            customDetails.getJSONArray("records").getJSONObject(0).optString("loan_contract"));
+                            docBase);
                     params.put("kycId", natid);
                     String res = DBPServiceExecutorBuilder.builder().withServiceId("MSDocumentMora")
                             .withOperationId("EmdhaSign").withRequestParameters(params).build()
