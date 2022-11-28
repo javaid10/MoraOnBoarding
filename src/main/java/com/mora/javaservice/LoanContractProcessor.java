@@ -15,6 +15,7 @@ import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.dbp.core.error.DBPApplicationException;
@@ -23,9 +24,10 @@ import com.konylabs.middleware.common.JavaService2;
 import com.konylabs.middleware.controller.DataControllerRequest;
 import com.konylabs.middleware.controller.DataControllerResponse;
 import com.konylabs.middleware.dataobject.Result;
-import com.konylabs.middleware.dataobject.ResultToJSON;
+import com.mora.constants.GenericConstants;
 import com.mora.util.EnvironmentConfigurationsMora;
 import com.mora.util.ErrorCodeMora;
+import com.mora.util.UtilServices;
 
 public class LoanContractProcessor implements JavaService2 {
     private static final Logger logger = LogManager.getLogger(LoanContractProcessor.class);
@@ -60,7 +62,7 @@ public class LoanContractProcessor implements JavaService2 {
                             .optString("approx");
                     String loanRate = getLoanDetails.getJSONArray("tbl_customerapplication").getJSONObject(0)
                             .optString("loanRate");
-                    HashMap<String, Object> inputContract = new HashMap();
+                    Map<String, String> inputContract = new HashMap<>();
                     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
                     LocalDateTime now = LocalDateTime.now();
                     Date date = new Date(); // Gregorian date
@@ -81,38 +83,30 @@ public class LoanContractProcessor implements JavaService2 {
                         int lengthArr = jsonSchedule.getJSONArray("body").length();
                         String sabbNumber = jsonSchedule.getJSONArray("body").getJSONObject(0).optString("sabbNumber");
                         String sadadNumber = jsonSchedule.getJSONArray("body").getJSONObject(0).optString("sadadNumber");
-                        String []  instDates = new String[lengthArr];
-                        String []  outstandingAmount = new String[lengthArr];
-                        String []  totalAmount = new String[lengthArr];
-                        String []  interestAmount = new String[lengthArr];
-                        String []  principalAmount = new String[lengthArr];
-                        String []  scheduleType = new String[lengthArr];
+                        
+                        
+                        JSONArray instDates = new JSONArray();
+                        
+                        JSONArray outstandingAmount = new JSONArray();
+                        JSONArray totalAmount = new JSONArray();;
+                        JSONArray interestAmount = new JSONArray();;
+                        JSONArray principalAmount = new JSONArray();;
+                        JSONArray scheduleType = new JSONArray();;
                         for(int i=0;i<jsonSchedule.getJSONArray("body").length();i++) {
-                            instDates[i] = jsonSchedule.getJSONArray("body").getJSONObject(i).optString("paymentDate");
-                            outstandingAmount[i] = jsonSchedule.getJSONArray("body").getJSONObject(i).optString("outstandingAmount");
-                            totalAmount[i] = jsonSchedule.getJSONArray("body").getJSONObject(i).optString("totalAmount");
-                            interestAmount[i] = jsonSchedule.getJSONArray("body").getJSONObject(i).optString("interestAmount");
-                            principalAmount[i] = jsonSchedule.getJSONArray("body").getJSONObject(i).optString("principalAmount");
-                            scheduleType[i] = jsonSchedule.getJSONArray("body").getJSONObject(i).optString("scheduleType");
+                            instDates.put(jsonSchedule.getJSONArray("body").getJSONObject(i).optString("paymentDate"));
+                            outstandingAmount.put(jsonSchedule.getJSONArray("body").getJSONObject(i).optString("outstandingAmount"));
+                            totalAmount.put(jsonSchedule.getJSONArray("body").getJSONObject(i).optString("totalAmount"));
+                            interestAmount.put(jsonSchedule.getJSONArray("body").getJSONObject(i).optString("interestAmount"));
+                            principalAmount.put(jsonSchedule.getJSONArray("body").getJSONObject(i).optString("principalAmount"));
+                            scheduleType.put(jsonSchedule.getJSONArray("body").getJSONObject(i).optString("scheduleType"));
                         }
-                        logger.error("======paymentDate :::"+instDates);
-                        logger.error("======outstandingAmount :::"+outstandingAmount);
-                        logger.error("======principalAmount :::"+principalAmount);
-                        logger.error("======totalAmount :::"+totalAmount);
-                        logger.error("======interestAmount :::"+interestAmount);
-                        logger.error("======scheduleType :::"+scheduleType);
                         
-                        
-                        inputContract.put("outstanding_amount", outstandingAmount);
-                        inputContract.put("installment_date", instDates);
-                        inputContract.put("total_monthly_amount", totalAmount);
-                        inputContract.put("principal_amount", principalAmount);
-                        inputContract.put("months", scheduleType);
-                        inputContract.put("cost_of_loan", interestAmount);
-                        
+                                              
                         inputContract.put("in_day", getArabicDay(dayOfWeek)); // day of week
-                        inputContract.put("date", now); // today date in yyyy/mm/dd
-                        inputContract.put("date_in_hijri", islamyDate); // today date in hijri
+                        
+                       // TODO inputContract.put("date", now); // today date in yyyy/mm/dd
+                        //TODO inputContract.put("date_in_hijri", islamyDate); // today date in hijri
+                        
 //                    inputContract.put("city_api4", "Riyadh");
                         inputContract.put("mr_mrs",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("ArFullName"));
@@ -157,7 +151,7 @@ public class LoanContractProcessor implements JavaService2 {
                         // customer details
                         inputContract.put("beneficiary_name",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("ArFullName"));
-                        inputContract.put("date_two", now);
+                        //TODO inputContract.put("date_two", now);
                         inputContract.put("civil_registery_number",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("UserName"));
                         inputContract.put("contract_refrence_number", appId);
@@ -216,8 +210,11 @@ public class LoanContractProcessor implements JavaService2 {
                         inputContract.put("basic_salary", "NA"); // need change
                         inputContract.put("customer_name_one",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("FullName"));
-                        inputContract.put("date_four", now);
-                        inputContract.put("signature", now); // need change
+                        
+                        //TODO inputContract.put("date_four", now);
+                        //TODO inputContract.put("signature", now); // need change
+                        
+                        
                         inputContract.put("customer_name",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("FullName"));
                         inputContract.put("civil_registry_number",
@@ -225,14 +222,26 @@ public class LoanContractProcessor implements JavaService2 {
                         inputContract.put("funding_principal_amount", loanAmount);
                         inputContract.put("total_funding_amount", loanAmount); // need change
                         inputContract.put("annual_percentage_rate_one", approx);
-                        inputContract.put("monthly_installment", monthlyRepay);
-                        inputContract.put("monthly_installment", monthlyRepay);
+                        inputContract.put("$monthly_installment", monthlyRepay);
+                        inputContract.put("$monthly_installment", monthlyRepay);
 
-                        String res = DBPServiceExecutorBuilder.builder().withServiceId("MSDocumentMora")
-                                .withOperationId("LoanContract").withRequestParameters(inputContract).build()
-                                .getResponse();
-                        JSONObject JsonResponse = new JSONObject(res);
-                        String file = JsonResponse.getString("file");
+                        String loanContractPayload = UtilServices.getJsonFromTemplate(GenericConstants.LOAN_CONTRACT_PAYLOAD, inputContract);
+                        logger.debug("======> Loan Contract Payload = 1 " +loanContractPayload);
+                        
+                        JSONObject loanContractJson = new JSONObject(loanContractPayload);
+                        loanContractJson.put("months", scheduleType);
+                        loanContractJson.put("months", scheduleType);
+                        loanContractJson.put("months", scheduleType);
+                        loanContractJson.put("months", scheduleType);
+                        loanContractJson.put("months", scheduleType);
+                        
+                        logger.debug("======> Loan Contract Payload = 2 " +loanContractJson);
+                        
+                        HashMap<String, String> headersMap = new HashMap<String, String>();
+                        String endPointResponse = com.mora.util.HTTPOperations.hitPOSTServiceAndGetResponse(GenericConstants.LOAN_CONTRACT_URL, loanContractJson, null, headersMap);
+                        JSONObject responseJson = UtilServices.getStringAsJSONObject(endPointResponse);
+                        
+                        String file = responseJson.getString("file");
                         if (!file.isEmpty()) {
                             try {
                                 result.addParam("file", file);
