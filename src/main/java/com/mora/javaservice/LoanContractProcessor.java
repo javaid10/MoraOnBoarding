@@ -108,120 +108,120 @@ public class LoanContractProcessor implements JavaService2 {
                         //TODO inputContract.put("date_in_hijri", islamyDate); // today date in hijri
                         
 //                    inputContract.put("city_api4", "Riyadh");
-                        inputContract.put("mr_mrs",
+                        inputContract.put("$mr_mrs",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("ArFullName"));
-                        inputContract.put("national_id",
+                        inputContract.put("$national_id",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("UserName"));
-                        inputContract.put("nationality", "KSA"); // nationality
-                        inputContract.put("customer_address", "KSA"); // country
-                        inputContract.put("city_api10", "Riyadh"); // city
-                        inputContract.put("national_address", "Riyadh"); // full address
-                        inputContract.put("phone_number", mobileNumber); // customerPhone
+                        inputContract.put("$nationality", "KSA"); // nationality
+                        inputContract.put("$customer_address", "KSA"); // country
+                        inputContract.put("$city_api10", "Riyadh"); // city
+                        inputContract.put("$national_address", "Riyadh"); // full address
+                        inputContract.put("$phone_number", mobileNumber); // customerPhone
                                                                          // Number
-                        inputContract.put("national_address", "Riyadh");
+                        inputContract.put("$national_address", "Riyadh");
 
                         // gettind details from nafaes order
-                        inputContract.put("product_type_one", "Copper");
-                        inputContract.put("spacification", "Copper"); // needs change
-                        inputContract.put("number_weight", "Copper");// needs change
-                        inputContract.put("product_price", "Copper");// needs change
-                        inputContract.put("total_selling_price_with_profit", "Copper");// needs change
+                        inputContract.put("$product_type_one", "Copper");
+                        inputContract.put("$spacification", "Copper"); // needs change
+                        inputContract.put("$number_weight", "Copper");// needs change
+                        inputContract.put("$product_price", "Copper");// needs change
+                        inputContract.put("$total_selling_price_with_profit", "Copper");// needs change
 
                         // loan details and profits
-                        inputContract.put("purpose_of_financing_loan", "Purchases");
-                        inputContract.put("total_amount", loanAmount);// loan amount
-                        inputContract.put("monthly_installment_one", monthlyRepay);// EMI
-                        inputContract.put("number_of_installment_one", tenor);// tenor in months
-                        inputContract.put("all_sales_service_fee_inclusive", "115 SAR");
-                        inputContract.put("tax", "15");
-                        inputContract.put("bank_name", "SABB");
-                        inputContract.put("account_name", sabbNumber);// needs change
-                        inputContract.put("funding_loan_amount_one", loanAmount);
-                        inputContract.put("repayment_periode", tenor);
-                        inputContract.put("fixed_profit_margin_one", loanRate);
-                        inputContract.put("anuual_precentage_rate", approx);
-                        inputContract.put("adminristive_fee_tax_inclusive_one", calcAdminFees(loanAmount));
-                        inputContract.put("selling_expense_tax_inclusive", "");
-                        inputContract.put("monthly_installment_two", monthlyRepay);
-                        inputContract.put("total_profit", monthlyRepay); // profit calculation need change
-                        inputContract.put("total_repayment_amount", monthlyRepay); // need change
-                        inputContract.put("total_payment_amount_with_administrative_fees_and_selling_expenses",
+                        inputContract.put("$purpose_of_financing_loan", "Purchases");
+                        inputContract.put("$total_amount", loanAmount);// loan amount
+                        inputContract.put("$monthly_installment_one", monthlyRepay);// EMI
+                        inputContract.put("$number_of_installment_one", tenor);// tenor in months
+                        inputContract.put("$all_sales_service_fee_inclusive", "115 SAR");
+                        inputContract.put("$tax", "15");
+                        inputContract.put("$bank_name", "SABB");
+                        inputContract.put("$account_name", sabbNumber);// needs change
+                        inputContract.put("$funding_loan_amount_one", loanAmount);
+                        inputContract.put("$repayment_periode", tenor);
+                        inputContract.put("$fixed_profit_margin_one", loanRate);
+                        inputContract.put("$anuual_precentage_rate", approx);
+                        inputContract.put("$adminristive_fee_tax_inclusive_one", calcAdminFees(loanAmount));
+                        inputContract.put("$selling_expense_tax_inclusive", "");
+                        inputContract.put("$monthly_installment_two", monthlyRepay);
+                        inputContract.put("$total_profit", monthlyRepay); // profit calculation need change
+                        inputContract.put("$total_repayment_amount", monthlyRepay); // need change
+                        inputContract.put("$total_payment_amount_with_administrative_fees_and_selling_expenses",
                                 monthlyRepay); // need change
 
                         // customer details
-                        inputContract.put("beneficiary_name",
+                        inputContract.put("$beneficiary_name",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("ArFullName"));
-                        //TODO inputContract.put("date_two", now);
-                        inputContract.put("civil_registery_number",
+                        //TODO inputContract.put("$date_two", now);
+                        inputContract.put("$civil_registery_number",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("UserName"));
-                        inputContract.put("contract_refrence_number", appId);
-                        inputContract.put("funding_loan_amount", loanAmount);
-                        inputContract.put("total_funding_cost", loanAmount); // need change Total payable (Profit + Loan
+                        inputContract.put("$contract_refrence_number", appId);
+                        inputContract.put("$funding_loan_amount", loanAmount);
+                        inputContract.put("$total_funding_cost", loanAmount); // need change Total payable (Profit + Loan
                                                                              // amt) ** profit is calculated above ***
-                        inputContract.put("terms_cost", loanAmount); // need change profit amount
-                        inputContract.put("adminristive_fee_tax_inclusive", calcAdminFees(loanAmount));
-                        inputContract.put("insurance", "NA");
-                        inputContract.put("real_estate_appraisal_fee", "NA");
-                        inputContract.put("sale_service_expense_tax_inclusive_one", "115 SAR");
-                        inputContract.put("total_amount_to_be_paid", "115 SAR"); // need change Total payable (Profit +
+                        inputContract.put("$terms_cost", loanAmount); // need change profit amount
+                        inputContract.put("$adminristive_fee_tax_inclusive", calcAdminFees(loanAmount));
+                        inputContract.put("$insurance", "NA");
+                        inputContract.put("$real_estate_appraisal_fee", "NA");
+                        inputContract.put("$sale_service_expense_tax_inclusive_one", "115 SAR");
+                        inputContract.put("$total_amount_to_be_paid", "115 SAR"); // need change Total payable (Profit +
                                                                                  // Loan
                                                                                  // amt)
-                        inputContract.put("amount_saa", "");
-                        inputContract.put("anuual_precentage_rate_apr", approx);
-                        inputContract.put("funding_contract_period", tenor);
-                        inputContract.put("number_of_installment", tenor); // needs changes
-                        inputContract.put("amount_of_monthly_installment_sar", monthlyRepay); // EMI needs changes
-                        inputContract.put("due_date_of_first_installment_one", monthlyRepay); // need change First
+                        inputContract.put("$amount_saa", "");
+                        inputContract.put("$anuual_precentage_rate_apr", approx);
+                        inputContract.put("$funding_contract_period", tenor);
+                        inputContract.put("$number_of_installment", tenor); // needs changes
+                        inputContract.put("$amount_of_monthly_installment_sar", monthlyRepay); // EMI needs changes
+                        inputContract.put("$due_date_of_first_installment_one", monthlyRepay); // need change First
                                                                                               // instalment Date
-                        inputContract.put("due_date_of_last_installment_one", monthlyRepay); // need change Last
+                        inputContract.put("$due_date_of_last_installment_one", monthlyRepay); // need change Last
                                                                                              // instalment
                                                                                              // Date
-                        inputContract.put("additional_note", "");
-                        inputContract.put("tawarruq", "TAWARRUQ");
-                        inputContract.put("funding_loan_purpose", "PURCHASES");// need change
-                        inputContract.put("the_requested_funding_loan_amount", loanAmount); // need change
-                        inputContract.put("product_type", "نحاس"); // need change
-                        inputContract.put("payment_period", monthlyRepay); // emi
-                        inputContract.put("product_spacification", "نحاس"); // need change
-                        inputContract.put("e_mail", emailId); // need change
-                        inputContract.put("name",
+                        inputContract.put("$additional_note", "");
+                        inputContract.put("$tawarruq", "TAWARRUQ");
+                        inputContract.put("$funding_loan_purpose", "PURCHASES");// need change
+                        inputContract.put("$the_requested_funding_loan_amount", loanAmount); // need change
+                        inputContract.put("$product_type", "نحاس"); // need change
+                        inputContract.put("$payment_period", monthlyRepay); // emi
+                        inputContract.put("$product_spacification", "نحاس"); // need change
+                        inputContract.put("$e_mail", emailId); // need change
+                        inputContract.put("$name",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("FullName"));
-                        inputContract.put("nationality_two", "NA"); // need change
-                        inputContract.put("marital_status", "Married"); // need change
-                        inputContract.put("id_resident_address_number",
+                        inputContract.put("$nationality_two", "NA"); // need change
+                        inputContract.put("$marital_status", "Married"); // need change
+                        inputContract.put("$id_resident_address_number",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("UserName"));
-                        inputContract.put("national_address", "Riyadh");
-                        inputContract.put("birth_date",
+                        inputContract.put("$national_address", "Riyadh");
+                        inputContract.put("$birth_date",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("DateOfBirth"));
-                        inputContract.put("mobile_number", mobileNumber);
-                        inputContract.put("number_of_dependents", "1");
-                        inputContract.put("sex",
+                        inputContract.put("$mobile_number", mobileNumber);
+                        inputContract.put("$number_of_dependents", "1");
+                        inputContract.put("$sex",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("Gender"));
-                        inputContract.put("expiry_date",
+                        inputContract.put("$expiry_date",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("IDExpiryDate"));
-                        inputContract.put("phone_number_two", "NA");
-                        inputContract.put("how_did_you_know_about_ijara_financing_programe", "NA");
+                        inputContract.put("$phone_number_two", "NA");
+                        inputContract.put("$how_did_you_know_about_ijara_financing_programe", "NA");
 
-                        inputContract.put("employer", "NA"); // need change
-                        inputContract.put("city_three", "NA"); // need change
-                        inputContract.put("job_title", "NA"); // need change
-                        inputContract.put("expenses_solidarity", "NA");
-                        inputContract.put("fiduciary_obligations", "NA");
-                        inputContract.put("basic_salary", "NA"); // need change
-                        inputContract.put("customer_name_one",
+                        inputContract.put("$employer", "NA"); // need change
+                        inputContract.put("$city_three", "NA"); // need change
+                        inputContract.put("$job_title", "NA"); // need change
+                        inputContract.put("$expenses_solidarity", "NA");
+                        inputContract.put("$fiduciary_obligations", "NA");
+                        inputContract.put("$basic_salary", "NA"); // need change
+                        inputContract.put("$customer_name_one",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("FullName"));
                         
-                        //TODO inputContract.put("date_four", now);
-                        //TODO inputContract.put("signature", now); // need change
+                        //TODO inputContract.put("$date_four", now);
+                        //TODO inputContract.put("$signature", now); // need change
                         
                         
-                        inputContract.put("customer_name",
+                        inputContract.put("$customer_name",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("FullName"));
-                        inputContract.put("civil_registry_number",
+                        inputContract.put("$civil_registry_number",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("UserName"));
-                        inputContract.put("funding_principal_amount", loanAmount);
-                        inputContract.put("total_funding_amount", loanAmount); // need change
-                        inputContract.put("annual_percentage_rate_one", approx);
+                        inputContract.put("$funding_principal_amount", loanAmount);
+                        inputContract.put("$total_funding_amount", loanAmount); // need change
+                        inputContract.put("$annual_percentage_rate_one", approx);
                         inputContract.put("$monthly_installment", monthlyRepay);
                         inputContract.put("$monthly_installment", monthlyRepay);
 
@@ -230,15 +230,18 @@ public class LoanContractProcessor implements JavaService2 {
                         
                         JSONObject loanContractJson = new JSONObject(loanContractPayload);
                         loanContractJson.put("months", scheduleType);
-                        loanContractJson.put("months", scheduleType);
-                        loanContractJson.put("months", scheduleType);
-                        loanContractJson.put("months", scheduleType);
-                        loanContractJson.put("months", scheduleType);
+                        loanContractJson.put("installment_date", scheduleType);
+                        loanContractJson.put("outstanding_amount", scheduleType);
+                        loanContractJson.put("remaining_principal_balance", scheduleType);
+                        loanContractJson.put("total_monthly_amount", scheduleType);
+                        loanContractJson.put("cost_of_loan", scheduleType);
+                        loanContractJson.put("principal_amount", scheduleType);
                         
-                        logger.debug("======> Loan Contract Payload = 2 " +loanContractJson);
+                        logger.debug("======> Loan Contract Payload = 2 " + loanContractJson);
                         
                         HashMap<String, String> headersMap = new HashMap<String, String>();
                         String endPointResponse = com.mora.util.HTTPOperations.hitPOSTServiceAndGetResponse(GenericConstants.LOAN_CONTRACT_URL, loanContractJson, null, headersMap);
+                        logger.debug("=====> Loan Contract response " + endPointResponse);
                         JSONObject responseJson = UtilServices.getStringAsJSONObject(endPointResponse);
                         
                         String file = responseJson.getString("file");
