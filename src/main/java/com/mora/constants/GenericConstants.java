@@ -51,4 +51,24 @@ public interface GenericConstants {
      * Generic Constants
      */
     String METHOD_POST = "POST";
+    
+    
+    /**
+     * RDBMS Filter Constants
+     */
+    String FILTER = "$filter";
+    String EQUAL = " eq ";
+    String NOT_EQ = " ne ";
+    String AND = " and ";
+    String OR = " or ";
+    String GREATER_EQUAL = " ge ";
+    String LESS_EQUAL = " le ";
+    String LESS_THAN = " lt ";
+    String GREATER_THAN = " gt ";
+    
+    
+    /**
+     * 
+     */
+    int PASSWORD_LOCK_OUT_COUNT = 5;
 }

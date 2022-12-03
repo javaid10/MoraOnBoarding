@@ -18,6 +18,7 @@ public enum ErrorCodeMora {
 	ERR_66007(66007, "Password is required"),	
 	ERR_100107(100107, "Error in fetching response from Nafaes service"),
 	ERR_100115(100105, "Invalid Username or Password"),
+	ERR_100134(100134, "Your Account has been locked"),
 	ERR_660032(660032, "National ID/Iqama is required"),
 	ERR_100105(100105, "Error in fetching response from Nafaes Market status"),
 	ERR_100106(100106, "Error in fetching response from Nafaes service"),
