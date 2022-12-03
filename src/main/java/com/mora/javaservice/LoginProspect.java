@@ -53,8 +53,9 @@ public class LoginProspect implements JavaService2 {
             String customerId = customerObj.getJSONArray("customer").getJSONObject(0).getString("id");
             String dbPassword = customerObj.getJSONArray("customer").getJSONObject(0).getString("Password");
             int lockCount = customerObj.getJSONArray("customer").getJSONObject(0).getInt("lockCount");
+            Boolean isUserAccountLocked = customerObj.getJSONArray("customer").getJSONObject(0).getBoolean("isUserAccountLocked");
 
-            if (lockCount >= GenericConstants.PASSWORD_LOCK_OUT_COUNT) {
+            if (isUserAccountLocked) {
                 return ErrorCodeMora.ERR_100134.updateResultObject(result);
             }
             
@@ -94,6 +95,10 @@ public class LoginProspect implements JavaService2 {
     }
 
     public static void main(String[] args) {
+        String str = "{\"opstatus\":0,\"httpStatusCode\":0,\"customer\":[{\"isWireTransferEligible\":\"true\",\"isUserAccountLocked\":\"false\",\"isEngageProvisioned\":\"false\",\"Organization_Id\":\"2\",\"isCombinedUser\":\"false\",\"isSignatory\":\"true\",\"isSuperAdmin\":\"false\",\"isEnrolledFromSpotlight\":\"0\",\"IsEnrolledForOlb\":\"false\",\"Lastlogintime\":\"2019-01-23 08:38:39.0\",\"createdts\":\"2019-01-07 14:02:40.0\",\"softdeleteflag\":\"false\",\"IsStaffMember\":\"false\",\"CurrentLoginTime\":\"2019-01-23 04:56:33.0\",\"IsPinSet\":\"false\",\"UserImageURL\":\"https://retailbanking1.konycloud.com/dbimages/displayPicture.png\",\"areUserAlertsTurnedOn\":\"false\",\"CustomerType_id\":\"TYPE_ID_BUSINESS\",\"id\":\"11\",\"Session_id\":\"8e935211-61fe-4050-aea2-6ab536922b26\",\"synctimestamp\":\"2019-01-07 14:02:40.0\",\"isEnrolled\":\"false\",\"isWireTransferActivated\":\"false\",\"Password\":\"$2a$11$zf5JKbRq6bEjT/M0AqKAnOChHbfxTj1LHXK6jig9a1hc7t1ze.4jm\",\"DateOfBirth\":\"2002-09-01\",\"lockCount\":\"11\",\"lastmodifiedts\":\"2019-01-07 14:02:40.0\",\"IsAssistConsented\":\"true\",\"isBillPayActivated\":\"false\",\"UserName\":\"dbxsbuser\",\"Status_id\":\"SID_CUS_ACTIVE\",\"DrivingLicenseNumber\":\"DLNO1234567890\",\"FirstName\":\"Jerimiah \",\"IsEmailEnabled\":\"false\",\"isAMLCheck\":\"true\",\"IsOlbAllowed\":\"false\",\"isBillPaySupported\":\"true\",\"MiddleName\":\"A\",\"Ssn\":\"223221232\",\"organizationType\":\"BUSINESS_TYPE_4\",\"isP2PSupported\":\"true\",\"IsPhoneEnabled\":\"false\",\"isEagreementSigned\":\"false\",\"isP2PActivated\":\"false\",\"LastName\":\"Copeland\",\"isVIPCustomer\":\"false\",\"Bank_id\":\"1\"}]}";
+        JSONObject json = new JSONObject(str);
+        Boolean isLocked = json.getJSONArray("customer").getJSONObject(0).getBoolean("isUserAccountLocked");
+               System.out.println(isLocked); 
         System.out.println(BCrypt.checkpw("Kony@1234", "$2a$11$zf5JKbRq6bEjT/M0AqKAnOChHbfxTj1LHXK6jig9a1hc7t1ze.4jm")); 
         }
     public String getMobileNumber(Result result, DataControllerRequest request, String customerId) {
