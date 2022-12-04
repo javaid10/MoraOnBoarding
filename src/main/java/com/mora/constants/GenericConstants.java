@@ -51,7 +51,10 @@ public interface GenericConstants {
      * Generic Constants
      */
     String METHOD_POST = "POST";
-    
+    String ERR_MSG = "errmsg";
+    String DATATYPE_INT = "int";
+    String DATATYPE_STRING = "String";
+    String HTTP_STATUS_CODE = "httpStatusCode";
     
     /**
      * RDBMS Filter Constants
@@ -68,7 +71,14 @@ public interface GenericConstants {
     
     
     /**
-     * 
+     * Login Constants
      */
     int PASSWORD_LOCK_OUT_COUNT = 5;
+    String security_attributes = "security_attributes";
+    String user_attributes = "user_attributes";
+    String user_id = "user_id";
+    String session_token = "session_token";
+    String backend_error_message = "backend_error_message";
+    String backend_error_code = "backend_error_code";
+    String FAILED_LOGIN_COUNT_LIMIT = "FAILED_LOGIN_COUNT_LIMIT";
 }
