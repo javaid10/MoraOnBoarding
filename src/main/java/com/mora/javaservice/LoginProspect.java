@@ -52,7 +52,12 @@ public class LoginProspect implements JavaService2 {
         } else {
             String customerId = customerObj.getJSONArray("customer").getJSONObject(0).getString("id");
             String dbPassword = customerObj.getJSONArray("customer").getJSONObject(0).getString("Password");
-            int lockCount = customerObj.getJSONArray("customer").getJSONObject(0).getInt("lockCount");
+            
+            int lockCount = 0;
+            if (customerObj.getJSONArray("customer").getJSONObject(0).has("lockCount")) {
+                lockCount = customerObj.getJSONArray("customer").getJSONObject(0).getInt("lockCount");
+            }
+            
             Boolean isUserAccountLocked = customerObj.getJSONArray("customer").getJSONObject(0)
                     .getBoolean("isUserAccountLocked");
 
