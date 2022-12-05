@@ -81,4 +81,15 @@ public interface GenericConstants {
     String backend_error_message = "backend_error_message";
     String backend_error_code = "backend_error_code";
     String FAILED_LOGIN_COUNT_LIMIT = "FAILED_LOGIN_COUNT_LIMIT";
+    
+    
+    /**
+     * 
+     */
+    String LOAN_CREATED = "LOAN_CREATED";
+    String STATUS_SUSPEND = "SID_SUSPENDED";
+    String STATUS_CREATED = "LOAN_CREATED";
+    String PRO_ACTIVE = "SID_PRO_ACTIVE";
+    String SANAD_WAITING = "SANAD_WAITING";
+    String CSA_APPROVAL_WAITING = "CSA_APPROVAL_WAITING";
 }

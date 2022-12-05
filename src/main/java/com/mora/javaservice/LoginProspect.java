@@ -66,18 +66,38 @@ public class LoginProspect implements JavaService2 {
             }
 
             if (validatePassword(dbPassword, password, customerId, lockCount)) {
-
                 Record securityAttrRecord = new Record();
                 securityAttrRecord.setId(GenericConstants.security_attributes);
+                
+                Record userAttrRecord = new Record();
+                userAttrRecord.setId(GenericConstants.user_attributes);
+                
+                
+                if (!customerObj.getJSONArray("customer").getJSONObject(0).has("currentAppId")) {
+                    return ErrorCodeMora.ERR_100135.buildResponseForFailedLogin(result);
+                }
+                
+                String appId = customerObj.getJSONArray("customer").getJSONObject(0).getString("currentAppId");
+                input.put("$filter", "applicationID eq " + appId);
+                String customerApplicationResponse = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
+                        .withOperationId("dbxdb_tbl_customerapplication_get").withRequestParameters(input).build().getResponse();
+                logger.debug("======> Customer Application table " + customerApplicationResponse);
+                JSONObject customerApplilcation = new JSONObject(customerApplicationResponse);
+                String applicationStatus = customerApplilcation.getJSONArray("tbl_customerapplication").getJSONObject(0).getString("applicationStatus");
+                
+                if (applicationStatus.equalsIgnoreCase(GenericConstants.PRO_ACTIVE)) {
+                    applicationStatus = getApplicationStatus(customerApplilcation);
+                }
+                
+                userAttrRecord.addParam(new Param("applicationStatus", applicationStatus));
+                
                 // generate session token
                 String sessionToken = BCrypt.hashpw(request.getParameter("UserName").toString(), BCrypt.gensalt());
                 securityAttrRecord.addParam(new Param("session_token", sessionToken));
 
-                Record userAttrRecord = new Record();
-                userAttrRecord.setId(GenericConstants.user_attributes);
                 userAttrRecord.addParam(new Param(GenericConstants.user_id, customerId));
                 userAttrRecord.addParam(new Param("party_id", ""));//TODO customerObj.getJSONArray("customer").getJSONObject(0).getString("partyId")));
-                userAttrRecord.addParam(new Param("app_id",""));//TODO customerObj.getJSONArray("customer").getJSONObject(0).getString("currentAppId")));
+                userAttrRecord.addParam(new Param("app_id", appId));
                 userAttrRecord.addParam(new Param("national_id", request.getParameter("UserName")));
                 userAttrRecord.addParam(new Param("email_id", getEmailId(result, request, customerId)));
                 userAttrRecord.addParam(new Param("mobile_number", getMobileNumber(result, request, customerId)));
@@ -101,6 +121,26 @@ public class LoginProspect implements JavaService2 {
         }
 
         return result;
+    }
+
+    /***
+     * 
+     * @param customerApplilcation
+     * @return
+     */
+    private String getApplicationStatus(JSONObject customerApplilcation) {
+        Boolean csaApproval = customerApplilcation.getJSONArray("tbl_customerapplication").getJSONObject(0).getBoolean("csaApporval"); 
+        Boolean sanadApproval = customerApplilcation.getJSONArray("tbl_customerapplication").getJSONObject(0).getBoolean("sanadApproval");
+        
+        if (!sanadApproval) {
+            return GenericConstants.SANAD_WAITING;
+        }
+        
+        if (!csaApproval) {
+            return GenericConstants.CSA_APPROVAL_WAITING;
+
+        }
+        return GenericConstants.LOAN_CREATED;
     }
 
     public String getMobileNumber(Result result, DataControllerRequest request, String customerId) {
