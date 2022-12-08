@@ -1,6 +1,7 @@
 import subprocess
 import requests
 import pync
+
 # mfcliFilePath = "mfcli.jar"
 # mavenBuildPath = "D:\\MoraFinance\\WorkspaceMora\\moraJavaService"
 # jarFilePath = "D:\\MoraFinance\\WorkspaceMora\\moraJavaService\\target\\UserReg-0.0.1-SNAPSHOT.jar"
@@ -52,6 +53,7 @@ fabricUser = "rajath@bank.com"
 fabricPassword = "Kony@1234"
 envName = "Dev"
 
+
 # mfcliFilePath = "mfcli.jar"
 # mavenBuildPath = "/Users/rajathv/moraFinance/moraJavaService"
 # jarFilePath = "/Users/rajathv/moraFinance/moraJavaService/target/MoraOnboarding-0.0.1-SNAPSHOT.jar"
@@ -77,13 +79,15 @@ def publishApp():
     print("Publishing app to fabric")
     subprocess.call("java -jar {6} Publish -u {0} -p {1} -e {2} -a {3} -au {4} -cu {5}".format(
         fabricUser, fabricPassword, envName, appName, fabricURL, authURL, mfcliFilePath), shell=True)
-    
+    pync.notify('Publish completed', title='Fabric Automater')
+
 
 
 def uploadJar():
     print("Uploading jar file  to fabric")
     subprocess.call("java -jar {0} import-Jar -u {1} -p {2} -au {3} -cu {4} -f {5} --override".format(
         mfcliFilePath, fabricUser, fabricPassword, fabricURL, authURL, jarFilePath, jarName), shell=True)
+    pync.notify('Uploaded jar completed', title='Fabric Automater')
 
 
 def sendsms():
@@ -92,18 +96,20 @@ def sendsms():
     'message': 'Hello Anitha you have won 5000000rs worth of gold please call 9206274135 for more information',
     'key': 'textbelt',})
   print(resp.json())
+mavenBuild()
+uploadJar()
+publishApp()
+# inp = input(
+#     " 1 Build Upload and Publish \n 2 Build and Upload Jar \n 3 Publish app \n ")
 
-inp = input(
-    " 1 Build Upload and Publish \n 2 Build and Upload Jar \n 3 Publish app \n ")
-
-if inp == "1":
-    mavenBuild()
-    uploadJar()
-    publishApp()
-elif inp == "3":
-    publishApp()
-elif inp == "2":
-    mavenBuild()
-    uploadJar()
-elif inp == "4":
-    sendsms()
+# if inp == "1":
+#     mavenBuild()
+#     uploadJar()
+#     publishApp()
+# elif inp == "3":
+#     publishApp()
+# elif inp == "2":
+#     mavenBuild()
+#     uploadJar()
+# elif inp == "4":
+#     sendsms()

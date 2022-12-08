@@ -223,7 +223,7 @@ public class NafaesPO implements JavaService2 {
             commodityCode = JsonResponse.getJSONArray("response").getJSONObject(0).getString("commodityCode") != null
                     ? JsonResponse.getJSONArray("response").getJSONObject(0).getString("commodityCode")
                     : "";
-            result.addParam("commodityCode", commodityCode);
+            // result.addParam("commodityCode", commodityCode);
         } else {
             // result.addParam("ResponseCode", ErrorCodeMora.ERR_100102.toString());
             // result.addParam("Message", ErrorCodeMora.ERR_100102.getErrorMessage());

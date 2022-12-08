@@ -29,10 +29,11 @@ import com.mora.util.EnvironmentConfigurationsMora;
 import com.mora.util.ErrorCodeMora;
 import com.mora.util.UtilServices;
 
+
 public class LoanContractProcessor implements JavaService2 {
     private static final Logger logger = LogManager.getLogger(LoanContractProcessor.class);
 
-    private String appId = "";
+    private String appId = "";  
 
     @Override
     public Object invoke(String methodId, Object[] inputArray, DataControllerRequest request,
@@ -48,6 +49,9 @@ public class LoanContractProcessor implements JavaService2 {
                 String partyId = getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("partyId");
                 if (appId != "") {
                     JSONObject getLoanDetails = new JSONObject(getLoanDetails(appId));
+                    JSONObject getAddressDetails = new JSONObject(
+                            getAddressDetails(request.getParameter("nationalId")));
+
                     String loanAmount = getLoanDetails.getJSONArray("tbl_customerapplication").getJSONObject(0)
                             .optString("offerAmount");
                     String[] comDetails = getMobileNumber(result, request,
@@ -63,15 +67,18 @@ public class LoanContractProcessor implements JavaService2 {
                     String loanRate = getLoanDetails.getJSONArray("tbl_customerapplication").getJSONObject(0)
                             .optString("loanRate");
                     Map<String, String> inputContract = new HashMap<>();
-                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                     LocalDateTime now = LocalDateTime.now();
                     Date date = new Date(); // Gregorian date
                     String dayOfWeek = new SimpleDateFormat("EEEE", Locale.ENGLISH).format(date.getTime());
                     Calendar cl = Calendar.getInstance();
                     cl.setTime(date);
+                    DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
                     HijrahDate islamyDate = HijrahChronology.INSTANCE
                             .date(LocalDate.of(cl.get(Calendar.YEAR), cl.get(Calendar.MONTH) + 1,
                                     cl.get(Calendar.DATE)));
+
                     HashMap<String, Object> loanSimParams = new HashMap();
                     String term = tenor + "M";
                     loanSimParams.put("amount", loanAmount);
@@ -85,6 +92,13 @@ public class LoanContractProcessor implements JavaService2 {
                         String sadadNumber = jsonSchedule.getJSONArray("body").getJSONObject(0)
                                 .optString("sadadNumber");
 
+                        String emi = jsonSchedule.getJSONArray("body").getJSONObject(1)
+                                .optString("totalAmount");
+                        String resSaab = updateSaadSabb(
+                                getLoanDetails.getJSONArray("tbl_customerapplication").getJSONObject(0)
+                                        .optString("id"),
+                                sabbNumber, sadadNumber);
+                        logger.error("Update Saab and sadad number" + resSaab);
                         JSONArray instDates = new JSONArray();
                         JSONArray months = new JSONArray();
                         JSONArray outstandingAmountR = new JSONArray();
@@ -94,16 +108,40 @@ public class LoanContractProcessor implements JavaService2 {
                         JSONArray interestAmount = new JSONArray();
                         JSONArray principalAmount = new JSONArray();
                         JSONArray remPrinciBal = new JSONArray();
-                        for (int i = 1; i < jsonSchedule.getJSONArray("body").length(); i++) {
+                        Float totalInterest = (float) 0;
 
-//                            Float outR = jsonSchedule.getJSONArray("body").getJSONObject(i)
-//                                    .getFloat("outstandingAmount")
-//                                    + jsonSchedule.getJSONArray("body").getJSONObject(i).getFloat("interestAmount");
-                            outstandingAmountR.put(jsonSchedule.getJSONArray("body").getJSONObject(i).optString("outstandingAmount"));
-//                            } else {
-//                                outstandingAmountR.put(jsonSchedule.getJSONArray("body").getJSONObject(i)
-//                                        .getString("outstandingAmount"));
-//                            }
+                        int lastIndex = jsonSchedule.getJSONArray("body").length() - 1;
+
+                        String firstInstallDate = jsonSchedule.getJSONArray("body").getJSONObject(1)
+                                .optString("paymentDate");
+                        String lastInstallDate = jsonSchedule.getJSONArray("body").getJSONObject(lastIndex)
+                                .optString("paymentDate");
+                        String valueDate = jsonSchedule.getJSONArray("body").getJSONObject(0).optString("paymentDate");
+                       Float outAmtF  = Math.abs(Float.parseFloat(jsonSchedule.getJSONArray("body").getJSONObject(0).optString("outstandingAmount")));
+                        Float chargeAmtF = Float.parseFloat(jsonSchedule.getJSONArray("body").getJSONObject(0).optString("chargeAmount"));
+                        Float taxAmtF =Float.parseFloat(jsonSchedule.getJSONArray("body").getJSONObject(0).optString("taxAmount"));
+                       
+                       Float totalAmt = outAmtF+chargeAmtF+taxAmtF;
+                        // Float totalAmt = Math
+                        //         .abs(jsonSchedule.getJSONArray("body").getJSONObject(0).getFloat("outstandingAmount"))
+                        //         + jsonSchedule.getJSONArray("body").getJSONObject(0).getFloat("chargeAmount")
+                        //         + Float.valueOf(
+                        //                 jsonSchedule.getJSONArray("body").getJSONObject(0).optString("taxAmount"));
+                        logger.error("Total Amount caluculated ::::+++>>>" + totalAmt);
+
+                        for (int i = 1; i < jsonSchedule.getJSONArray("body").length(); i++) {
+                            totalInterest = totalInterest
+                                    + Float.parseFloat(jsonSchedule.getJSONArray("body").getJSONObject(i).optString("interestAmount"));
+                            // Float outR = jsonSchedule.getJSONArray("body").getJSONObject(i)
+                            // .getFloat("outstandingAmount")
+                            // +
+                            // jsonSchedule.getJSONArray("body").getJSONObject(i).getFloat("interestAmount");
+                            outstandingAmountR.put(
+                                    jsonSchedule.getJSONArray("body").getJSONObject(i).optString("outstandingAmount"));
+                            // } else {
+                            // outstandingAmountR.put(jsonSchedule.getJSONArray("body").getJSONObject(i)
+                            // .getString("outstandingAmount"));
+                            // }
 
                             instDates.put(jsonSchedule.getJSONArray("body").getJSONObject(i).optString("paymentDate"));
                             outstandingAmount.put(
@@ -119,81 +157,95 @@ public class LoanContractProcessor implements JavaService2 {
                             months.put(i);
                         }
 
-                        inputContract.put("in_day", getArabicDay(dayOfWeek)); // day of week
+                        inputContract.put("$loan_reference", appId);
 
-                        inputContract.put("date", now.toString()); // today date in yyyy/mm/dd
-                        inputContract.put("date_in_hijri", islamyDate.toString()); // today date in hijri
+                        inputContract.put("$in_day", dayOfWeek); // day of week
+                        String nowDate = now.format(dtf);
+                        String hijDate = islamyDate.format(outputFormatter);
+                        inputContract.put("$date", nowDate); // today date in yyyy/mm/dd
+                        inputContract.put("$date_in_hijri", hijDate); // today date in hijri
 
-//                    inputContract.put("city_api4", "Riyadh");
+                        // inputContract.put("city_api4", "Riyadh");
                         inputContract.put("$mr_mrs",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("ArFullName"));
                         inputContract.put("$national_id",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("UserName"));
-                        inputContract.put("$nationality", "KSA"); // nationality
-                        inputContract.put("$customer_address", "KSA"); // country
-                        inputContract.put("$city_api10", "Riyadh"); // city
+                        inputContract.put("$nationality", "المملكة العربية السعودية	"); // nationality
+                        // inputContract.put("$customer_address", "KSA"); // country
+                        // inputContract.put("$city_api10", "Riyadh"); // city
+                        inputContract.put("$customer_address",
+                                getAddressDetails.getJSONArray("tbl_address").getJSONObject(0).optString("addressLine1")
+                                        + " " + getAddressDetails.getJSONArray("tbl_address").getJSONObject(0)
+                                                .optString("addressLine2")); // country
+                        inputContract.put("$city_api10",
+                                getAddressDetails.getJSONArray("tbl_address").getJSONObject(0).optString("cityName")); // city
                         inputContract.put("$national_address", "Riyadh"); // full address
                         inputContract.put("$phone_number", mobileNumber); // customerPhone
                                                                           // Number
                         inputContract.put("$national_address", "Riyadh");
+                        inputContract.put("$gentlemen", "Riyadh");
 
                         // gettind details from nafaes order
                         inputContract.put("$product_type_one", "Copper");
                         inputContract.put("$spacification", "Copper"); // needs change
                         inputContract.put("$number_weight", "Copper");// needs change
-                        inputContract.put("$product_price", "Copper");// needs change
-                        inputContract.put("$total_selling_price_with_profit", "Copper");// needs change
-
+                        inputContract.put("$product_price", loanAmount);// needs change
+                        inputContract.put("$total_selling_price_with_profit", loanAmount);// needs change
+                        inputContract.put("$monthly_installment_amount", emi);// emi
+                        inputContract.put("$term_cost", String.valueOf(totalAmt + totalInterest));
+                        inputContract.put("$funding_amount_one", loanAmount);// needs change
                         // loan details and profits
                         inputContract.put("$purpose_of_financing_loan", "Purchases");
                         inputContract.put("$total_amount", loanAmount);// loan amount
-                        inputContract.put("$monthly_installment_one", monthlyRepay);// EMI
+                        inputContract.put("$monthly_installment_one", emi);// EMI
                         inputContract.put("$number_of_installment_one", tenor);// tenor in months
                         inputContract.put("$all_sales_service_fee_inclusive", "115 SAR");
                         inputContract.put("$tax", "15");
-                        inputContract.put("$bank_name", "SABB");
-                        inputContract.put("$account_name", sabbNumber);// needs change
+                        inputContract.put("$bank_name", "ساب");
+                        inputContract.put("$account_name", "Virtual Account");// needs change
                         inputContract.put("$funding_loan_amount_one", loanAmount);
                         inputContract.put("$repayment_periode", tenor);
                         inputContract.put("$fixed_profit_margin_one", loanRate);
                         inputContract.put("$anuual_precentage_rate", approx);
+                        inputContract.put("$sale_service_expense_inclusive_tax", "");
+                        inputContract.put("$installment_number", tenor);
                         inputContract.put("$adminristive_fee_tax_inclusive_one", calcAdminFees(loanAmount));
                         inputContract.put("$selling_expense_tax_inclusive", "");
+                        inputContract.put("$installment_number_one", tenor);// total installment
                         inputContract.put("$monthly_installment_two", monthlyRepay);
                         inputContract.put("$total_profit", monthlyRepay); // profit calculation need change
                         inputContract.put("$total_repayment_amount", monthlyRepay); // need change
-                        inputContract.put("$total_payment_amount_with_administrative_fees_and_selling_expenses",
-                                monthlyRepay); // need change
-
+                        inputContract.put(
+                                "$total_payment_amount_with_administrative_fees_and_selling_expenses _inclusive_tax",
+                                String.valueOf(totalAmt + totalInterest)); // TODO need change
                         // customer details
                         inputContract.put("$beneficiary_name",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("ArFullName"));
-                        // TODO inputContract.put("$date_two", now);
+                        inputContract.put("$date_two", nowDate);
                         inputContract.put("$civil_registery_number",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("UserName"));
                         inputContract.put("$contract_refrence_number", appId);
+                        inputContract.put("$contract_reference_number", appId);
                         inputContract.put("$funding_loan_amount", loanAmount);
-                        inputContract.put("$total_funding_cost", loanAmount); // need change Total payable (Profit +
-                                                                              // Loan
-                                                                              // amt) ** profit is calculated above ***
+                        inputContract.put("$total_funding_cost", loanAmount);
                         inputContract.put("$terms_cost", loanAmount); // need change profit amount
-                        inputContract.put("$adminristive_fee_tax_inclusive", calcAdminFees(loanAmount));
+                        inputContract.put("$adminristive_fee_tax_inclusive", calcAdminFeesTax(loanAmount));
                         inputContract.put("$insurance", "NA");
                         inputContract.put("$real_estate_appraisal_fee", "NA");
                         inputContract.put("$sale_service_expense_tax_inclusive_one", "115 SAR");
-                        inputContract.put("$total_amount_to_be_paid", "115 SAR"); // need change Total payable (Profit +
-                                                                                  // Loan
-                                                                                  // amt)
+                        inputContract.put("$total_amount_to_be_paid", "115 SAR");
+                        inputContract.put("$contract_number", appId); // need change Total payable (Profit +
                         inputContract.put("$amount_saa", "");
+                        inputContract.put("$iban", sabbNumber); // need change Total payable (Profit +
+                        inputContract.put("$due_date_of_first_installment", firstInstallDate); // first installment date
+                        inputContract.put("$due_date_of_last_installment", lastInstallDate); // need change Last
+                        inputContract.put("$number_of_repament_years", String.valueOf(Integer.parseInt(tenor) / 12));
                         inputContract.put("$anuual_precentage_rate_apr", approx);
                         inputContract.put("$funding_contract_period", tenor);
                         inputContract.put("$number_of_installment", tenor); // needs changes
-                        inputContract.put("$amount_of_monthly_installment_sar", monthlyRepay); // EMI needs changes
-                        inputContract.put("$due_date_of_first_installment_one", monthlyRepay); // need change First
-                                                                                               // instalment Date
-                        inputContract.put("$due_date_of_last_installment_one", monthlyRepay); // need change Last
-                                                                                              // instalment
-                                                                                              // Date
+                        inputContract.put("$amount_of_monthly_installment_sar", emi); // EMI
+                        inputContract.put("$due_date_of_first_installment_one", firstInstallDate);
+                        inputContract.put("$due_date_of_last_installment_one", lastInstallDate);
                         inputContract.put("$additional_note", "");
                         inputContract.put("$tawarruq", "TAWARRUQ");
                         inputContract.put("$funding_loan_purpose", "PURCHASES");// need change
@@ -219,12 +271,13 @@ public class LoanContractProcessor implements JavaService2 {
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("IDExpiryDate"));
                         inputContract.put("$phone_number_two", "NA");
                         inputContract.put("$how_did_you_know_about_ijara_financing_programe", "NA");
-
+                        inputContract.put("$administration_fee", calcAdminFees(loanAmount));
                         inputContract.put("$employer", "NA"); // need change
                         inputContract.put("$city_three", "NA"); // need change
                         inputContract.put("$job_title", "NA"); // need change
                         inputContract.put("$expenses_solidarity", "NA");
                         inputContract.put("$fiduciary_obligations", "NA");
+                        inputContract.put("$contract_end_date", lastInstallDate);
                         inputContract.put("$basic_salary", "NA"); // need change
                         inputContract.put("$customer_name_one",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("FullName"));
@@ -240,7 +293,8 @@ public class LoanContractProcessor implements JavaService2 {
                         inputContract.put("$total_funding_amount", loanAmount); // need change
                         inputContract.put("$annual_percentage_rate_one", approx);
                         inputContract.put("$monthly_installment", monthlyRepay);
-                        inputContract.put("$monthly_installment", monthlyRepay);
+                        // inputContract.put("$monthly_installment", monthlyRepay);
+                        inputContract.put("$annual_percentage_rate", approx);
 
                         String loanContractPayload = UtilServices
                                 .getJsonFromTemplate(GenericConstants.LOAN_CONTRACT_PAYLOAD, inputContract);
@@ -297,6 +351,14 @@ public class LoanContractProcessor implements JavaService2 {
     private String calcAdminFees(String loanAmount) {
         loanAmount = loanAmount.replaceAll(",", "");
         float loanAmt = Float.valueOf(loanAmount);
+        float adminFess = (float) (loanAmt * (1 / 100));
+        return String.valueOf(adminFess);
+
+    }
+
+    private String calcAdminFeesTax(String loanAmount) {
+        loanAmount = loanAmount.replaceAll(",", "");
+        float loanAmt = Float.valueOf(loanAmount);
         float adminFess = (float) (loanAmt * (1.15 / 100));
         return String.valueOf(adminFess);
 
@@ -350,9 +412,27 @@ public class LoanContractProcessor implements JavaService2 {
         return resVal;
     }
 
+    private String updateSaadSabb(String loanTabId, String saab, String sadad) {
+
+        HashMap<String, Object> inpParams = new HashMap();
+        inpParams.put("id", loanTabId);
+
+        inpParams.put("sabbNumber", saab);
+        inpParams.put("sadadNumber", sadad);
+        try {
+            String resp = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
+                    .withOperationId("dbxdb_tbl_customerapplication_update").withRequestParameters(inpParams).build()
+                    .getResponse();
+        } catch (DBPApplicationException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     private String getArabicDay(String day) {
 
-//    switch case(day):
+        // switch case(day):
         String dayInAr = "";
         switch (day.toUpperCase()) {
             case "MONDAY":
@@ -379,30 +459,31 @@ public class LoanContractProcessor implements JavaService2 {
             default:
                 break;
         }
-//        copper = نحاس
+        // copper = نحاس
         return dayInAr;
     }
 
-//    private String getPaymentSchedule(Map<String, String> inputParams, DataControllerRequest dataControllerRequest) {
-//        try {
-//
-////            LoanSimulationSchedulePayment
-////            PaymentScheduleOrch
-////            partyId
-////            amount
-////            term
-//
-//        } catch (Exception ex) {
-//            logger.error("ERROR getPaymentSchedule :: " + ex);
-//        }
-//        return null;
-//
-//    }
+    // private String getPaymentSchedule(Map<String, String> inputParams,
+    // DataControllerRequest dataControllerRequest) {
+    // try {
+    //
+    //// LoanSimulationSchedulePayment
+    //// PaymentScheduleOrch
+    //// partyId
+    //// amount
+    //// term
+    //
+    // } catch (Exception ex) {
+    // logger.error("ERROR getPaymentSchedule :: " + ex);
+    // }
+    // return null;
+    //
+    // }
 
     private String getLoanSimulation(HashMap<String, Object> inputParams, DataControllerRequest dataControllerRequest) {
-//        Result result = StatusEnum.error.setStatus();
-//      LoanSimulationSchedulePayment
-//        LoanSimulationOrch
+        // Result result = StatusEnum.error.setStatus();
+        // LoanSimulationSchedulePayment
+        // LoanSimulationOrch
         String schedRes = "";
         try {
             String res = DBPServiceExecutorBuilder.builder().withServiceId("LoanSimulationSchedulePayment")
@@ -431,6 +512,20 @@ public class LoanContractProcessor implements JavaService2 {
             logger.error("ERROR getLoanSimulation :: " + ex);
         }
         return schedRes;
+    }
+
+    
+
+    private String getAddressDetails(String natid) throws DBPApplicationException {
+
+        String res = null;
+        HashMap<String, Object> input = new HashMap();
+        input.put("$filter", "User_id eq " + natid);
+        res = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
+                .withOperationId("dbxdb_tbl_address_get").withRequestParameters(input).build()
+                .getResponse();
+
+        return res;
     }
 
     private String getLoanDetails(String applicationId) throws DBPApplicationException {

@@ -1,5 +1,13 @@
 package com.mora.javaservice;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.chrono.HijrahChronology;
+import java.time.chrono.HijrahDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,12 +25,14 @@ public class TestDate {
     private String CUSTOMER_ID = "";
 
     public static void main(String[] args) {
-      
-        String mob ="966505589169";
-        String zero = "0";
-        String phonenum = zero+ mob.substring(3);
-        
-    System.out.println(phonenum);
+        Calendar cl = Calendar.getInstance();
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        HijrahDate islamyDate = HijrahChronology.INSTANCE
+        .date(LocalDate.of(cl.get(Calendar.YEAR), cl.get(Calendar.MONTH) + 1,
+                cl.get(Calendar.DATE)));
+            
+System.out.println(islamyDate);
+            System.out.println(islamyDate.format(outputFormatter));
     }
     
     
