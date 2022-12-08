@@ -115,7 +115,7 @@ public class LoanContractProcessor implements JavaService2 {
                         String firstInstallDate = jsonSchedule.getJSONArray("body").getJSONObject(1)
                                 .optString("paymentDate");
                         String lastInstallDate = jsonSchedule.getJSONArray("body").getJSONObject(lastIndex)
-                                .optString("paymentDate");
+                                .optStri        ng("paymentDate");
                         String valueDate = jsonSchedule.getJSONArray("body").getJSONObject(0).optString("paymentDate");
                        Float outAmtF  = Math.abs(Float.parseFloat(jsonSchedule.getJSONArray("body").getJSONObject(0).optString("outstandingAmount")));
                         Float chargeAmtF = Float.parseFloat(jsonSchedule.getJSONArray("body").getJSONObject(0).optString("chargeAmount"));
@@ -195,7 +195,11 @@ public class LoanContractProcessor implements JavaService2 {
                         inputContract.put("$term_cost", String.valueOf(totalAmt + totalInterest));
                         inputContract.put("$funding_amount_one", loanAmount);// needs change
                         // loan details and profits
+                        inputContract.put("$contract_periode", term);
+
                         inputContract.put("$purpose_of_financing_loan", "Purchases");
+                        inputContract.put("$adminristive_fee", calcAdminFees(loanAmount));
+
                         inputContract.put("$total_amount", loanAmount);// loan amount
                         inputContract.put("$monthly_installment_one", emi);// EMI
                         inputContract.put("$number_of_installment_one", tenor);// tenor in months
@@ -207,10 +211,12 @@ public class LoanContractProcessor implements JavaService2 {
                         inputContract.put("$repayment_periode", tenor);
                         inputContract.put("$fixed_profit_margin_one", loanRate);
                         inputContract.put("$anuual_precentage_rate", approx);
-                        inputContract.put("$sale_service_expense_inclusive_tax", "");
+                        inputContract.put("$sale_service_expense_inclusive_tax_inclusive", "");
                         inputContract.put("$installment_number", tenor);
                         inputContract.put("$adminristive_fee_tax_inclusive_one", calcAdminFees(loanAmount));
                         inputContract.put("$selling_expense_tax_inclusive", "");
+                        inputContract.put("$sale_service_expense_tax_inclusive", "115 SAR");
+
                         inputContract.put("$installment_number_one", tenor);// total installment
                         inputContract.put("$monthly_installment_two", monthlyRepay);
                         inputContract.put("$total_profit", monthlyRepay); // profit calculation need change
@@ -224,7 +230,9 @@ public class LoanContractProcessor implements JavaService2 {
                         inputContract.put("$date_two", nowDate);
                         inputContract.put("$civil_registery_number",
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("UserName"));
-                        inputContract.put("$contract_refrence_number", appId);
+                                inputContract.put("$gentlemen", "1");
+
+                                inputContract.put("$contract_refrence_number", appId);
                         inputContract.put("$contract_reference_number", appId);
                         inputContract.put("$funding_loan_amount", loanAmount);
                         inputContract.put("$total_funding_cost", loanAmount);

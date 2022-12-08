@@ -99,8 +99,8 @@ public class LoginProspect implements JavaService2 {
                 userAttrRecord.addParam(new Param("party_id", ""));//TODO customerObj.getJSONArray("customer").getJSONObject(0).getString("partyId")));
                 userAttrRecord.addParam(new Param("app_id", appId));
                 userAttrRecord.addParam(new Param("national_id", request.getParameter("UserName")));
-                userAttrRecord.addParam(new Param("email_id", getEmailId(result, request, customerId)));
-                userAttrRecord.addParam(new Param("mobile_number", getMobileNumber(result, request, customerId)));
+                userAttrRecord.addParam(new Param("mobile_number", getEmailId(result, request, customerId)));
+                userAttrRecord.addParam(new Param("email_id", getMobileNumber(result, request, customerId)));
 
                 result.addRecord(securityAttrRecord);
                 result.addRecord(userAttrRecord);
