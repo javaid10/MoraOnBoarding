@@ -13,69 +13,69 @@ import com.konylabs.middleware.controller.DataControllerRequest;
 import com.konylabs.middleware.controller.DataControllerResponse;
 import com.konylabs.middleware.dataobject.Result;
 import com.mora.util.ErrorCodeMora;
+import com.temenos.infinity.api.commons.encrypt.BCrypt;
 import com.temenos.onboarding.crypto.PasswordGenerator;
-import com.mora.util.EnvironmentConfigurationsMora;
 
 public class ForgotResetPassword implements JavaService2 {
-	private static final Logger logger = LogManager.getLogger(ForgotResetPassword.class);
+    private static final Logger logger = LogManager.getLogger(ForgotResetPassword.class);
 
-	@Override
-	public Object invoke(String methodId, Object[] inputArray, DataControllerRequest dcRequest,
-			DataControllerResponse response) throws Exception {
-		Result result = new Result();
-		String userName = dcRequest.getParameter("nationalId").toString();
-		String currentPwd = dcRequest.getParameter("password").toString();
-		logger.error("Password", currentPwd);
-		logger.error("username", userName);
+    @Override
+    public Object invoke(String methodId, Object[] inputArray, DataControllerRequest dcRequest,
+            DataControllerResponse response) throws Exception {
+        Result result = new Result();
+        String userName = dcRequest.getParameter("nationalId").toString();
 
-		HashMap<String, Object> requestParam = new HashMap<String, Object>();
-		requestParam.put("$filter", "UserName eq " + userName);
-//		String res = "";
-//		String udpateRes = "";
+        HashMap<String, Object> inputParams = new HashMap<String, Object>();
+        inputParams.put("$filter", "UserName eq " + userName);
 
-			String res = DBPServiceExecutorBuilder.builder().withServiceId("DBXDBServices")
-					.withOperationId("dbxdb_customer_get").withRequestParameters(requestParam).build().getResponse();
+        String customerResponse = DBPServiceExecutorBuilder.builder().withServiceId("DBXDBServices")
+                .withOperationId("dbxdb_customer_get").withRequestParameters(inputParams).build().getResponse();
+        logger.debug("======> Customer Response " + customerResponse);
+        
+        JSONObject customerObj = new JSONObject(customerResponse);
+        String customerId = customerObj.getJSONArray("customer").getJSONObject(0).getString("id");
+        String updatePasswordResponse = updateCustomerResetPassword(dcRequest, result, customerId);
 
-			JSONObject jsonResponse = new JSONObject(res);
-			String dbPwd = jsonResponse.getJSONArray("customer").getJSONObject(0).getString("Password");
-			String customerId = jsonResponse.getJSONArray("customer").getJSONObject(0).getString("id");
-			logger.error("CustomerId",customerId);
-			logger.error("password",dbPwd);
-			String udpateRes = updateCustomerResetPassword(dcRequest, result, customerId);
+        JSONObject updatePasswordObj = new JSONObject(updatePasswordResponse);
+        if (updatePasswordObj.get("updatedRecords").toString().equals("1")) {
+            result.addParam("status", "Password Reset successful");
+            result = ErrorCodeMora.ERR_100113.updateResultObject(result);
+            logger.debug("Password Reset successfully");
+        } else {
+            result.addParam("status", "Password Reset unsuccessful");
+            result = ErrorCodeMora.ERR_100112.updateResultObject(result);
+            logger.debug("Password Reset unsuccessful");
+        }
+        return result;
+    }
 
-			JSONObject jsonRes = new JSONObject(udpateRes);
-			// String statusCode = jsonResponse.getString("StatusCode");
+    /**
+     * Update customer table with New Password
+     * 
+     * @param dcRequest
+     * @param result
+     * @param customerId
+     * @return
+     * @throws DBPApplicationException
+     */
+    private String updateCustomerResetPassword(DataControllerRequest dcRequest, Result result, String customerId)
+            throws DBPApplicationException {
+        HashMap<String, Object> input = new HashMap<String, Object>();
+        PasswordGenerator pwdGenerator = new PasswordGenerator();
+        input.put("id", customerId);
+        input.put("Password", pwdGenerator.hashPassword(dcRequest.getParameter("password").toString()));
+        String res = DBPServiceExecutorBuilder.builder().withServiceId("DBXDBServices")
+                .withOperationId("dbxdb_customer_update").withRequestParameters(input).build().getResponse();
+        logger.error("======> Response from updatePassword  : " + res);
+        return res;
+    }
 
-			if (jsonRes.get("updatedRecords").toString().equals("1")) {
-				result.addParam("status", "Password Reset successful");
-//				result.addParam("ResponseCode", ErrorCodeMora.ERR_100113.toString());
-//				result.addParam("Message", ErrorCodeMora.ERR_100113.getErrorMessage());
-				result = ErrorCodeMora.ERR_100113.updateResultObject(result);
-
-				logger.debug("Password Reset successfully");
-			} else {
-				result.addParam("status", "Password Reset unsuccessful");
-
-				result = ErrorCodeMora.ERR_100112.updateResultObject(result);
-				logger.debug("Password Reset unsuccessful");
-			}
-		
-		return result;
-	}
-
-	private String updateCustomerResetPassword(DataControllerRequest dcRequest, Result result, String customerId)
-			throws DBPApplicationException {
-		HashMap<String, Object> input = new HashMap<String, Object>();
-		PasswordGenerator pwdGenerator = new PasswordGenerator();
-		String hashedPassword = pwdGenerator.hashPassword(dcRequest.getParameter("password").toString());
-		input.put("id", customerId);
-		input.put("Password", hashedPassword);
-		// input.put("UserName", dcRequest.getParameter("username").toString());
-		String res = DBPServiceExecutorBuilder.builder().withServiceId("DBXDBServices")
-				.withOperationId("PasswordUpdate").withRequestParameters(input).build().getResponse();
-		logger.error("==========================Response from updatePassword  : " + res);
-
-		return res;
-	}
-
+    
+    public static void main(String[] args) {
+        String s1 = "$2a$11$SdKdWXFbxPGwkIXhch1AGe/ywsskXd5sM.C9sFUZAlJ1JR0n1Vtf2";
+        String s2 = "$2a$11$AHvWXBXcDNSBTP04KrDbZeidp2zTddwidYLkkG6Odzd9f6EorYfyS";
+        
+        System.out.println(BCrypt.checkpw("Kony@1122", s2));
+    }
+    
 }
