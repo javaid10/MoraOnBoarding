@@ -44,6 +44,10 @@ public class LoanCreation implements JavaService2 {
                 String jsonresp = DBPServiceExecutorBuilder.builder().withServiceId("MSDocumentMora")
                         .withOperationId("SanadCreatePython").withRequestParameters(map).build()
                         .getResponse();
+
+                JSONObject sanadRespJsonObject = new JSONObject(jsonresp);
+                String sanadNum = sanadRespJsonObject.optString("sanadNumber");
+                    
                 result.addParam("ResponseCode", ErrorCodeMora.ERR_60000.toString());
                 result.addParam("Message", ErrorCodeMora.ERR_60000.getErrorMessage());
             }
@@ -52,6 +56,15 @@ public class LoanCreation implements JavaService2 {
         return result;
     }
 
+
+    private static void updateSanadNumber(String sanadNumber){
+
+
+        
+
+
+
+    }
     public boolean createLoan(String cusId, String partyId, String appId) throws DBPApplicationException {
         String tenor = "";
         String loanAmt = "";
