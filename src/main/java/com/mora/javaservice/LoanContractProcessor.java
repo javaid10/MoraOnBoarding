@@ -94,11 +94,11 @@ public class LoanContractProcessor implements JavaService2 {
 
                         String emi = jsonSchedule.getJSONArray("body").getJSONObject(1)
                                 .optString("totalAmount");
-                        String resSaab = updateSaadSabb(
-                                getLoanDetails.getJSONArray("tbl_customerapplication").getJSONObject(0)
-                                        .optString("id"),
-                                sabbNumber, sadadNumber);
-                        logger.error("Update Saab and sadad number" + resSaab);
+                        // String resSaab = updateSaadSabb(
+                        //         getLoanDetails.getJSONArray("tbl_customerapplication").getJSONObject(0)
+                        //                 .optString("id"),
+                        //         sabbNumber, sadadNumber);
+                        // logger.error("Update Saab and sadad number" + resSaab);
                         JSONArray instDates = new JSONArray();
                         JSONArray months = new JSONArray();
                         JSONArray outstandingAmountR = new JSONArray();
@@ -115,33 +115,22 @@ public class LoanContractProcessor implements JavaService2 {
                         String firstInstallDate = jsonSchedule.getJSONArray("body").getJSONObject(1)
                                 .optString("paymentDate");
                         String lastInstallDate = jsonSchedule.getJSONArray("body").getJSONObject(lastIndex)
-                                .optStri        ng("paymentDate");
+                                .optString("paymentDate");
                         String valueDate = jsonSchedule.getJSONArray("body").getJSONObject(0).optString("paymentDate");
                        Float outAmtF  = Math.abs(Float.parseFloat(jsonSchedule.getJSONArray("body").getJSONObject(0).optString("outstandingAmount")));
                         Float chargeAmtF = Float.parseFloat(jsonSchedule.getJSONArray("body").getJSONObject(0).optString("chargeAmount"));
                         Float taxAmtF =Float.parseFloat(jsonSchedule.getJSONArray("body").getJSONObject(0).optString("taxAmount"));
                        
                        Float totalAmt = outAmtF+chargeAmtF+taxAmtF;
-                        // Float totalAmt = Math
-                        //         .abs(jsonSchedule.getJSONArray("body").getJSONObject(0).getFloat("outstandingAmount"))
-                        //         + jsonSchedule.getJSONArray("body").getJSONObject(0).getFloat("chargeAmount")
-                        //         + Float.valueOf(
-                        //                 jsonSchedule.getJSONArray("body").getJSONObject(0).optString("taxAmount"));
                         logger.error("Total Amount caluculated ::::+++>>>" + totalAmt);
 
                         for (int i = 1; i < jsonSchedule.getJSONArray("body").length(); i++) {
                             totalInterest = totalInterest
                                     + Float.parseFloat(jsonSchedule.getJSONArray("body").getJSONObject(i).optString("interestAmount"));
-                            // Float outR = jsonSchedule.getJSONArray("body").getJSONObject(i)
-                            // .getFloat("outstandingAmount")
-                            // +
-                            // jsonSchedule.getJSONArray("body").getJSONObject(i).getFloat("interestAmount");
+                           
                             outstandingAmountR.put(
                                     jsonSchedule.getJSONArray("body").getJSONObject(i).optString("outstandingAmount"));
-                            // } else {
-                            // outstandingAmountR.put(jsonSchedule.getJSONArray("body").getJSONObject(i)
-                            // .getString("outstandingAmount"));
-                            // }
+                          
 
                             instDates.put(jsonSchedule.getJSONArray("body").getJSONObject(i).optString("paymentDate"));
                             outstandingAmount.put(
