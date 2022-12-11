@@ -49,7 +49,8 @@ public enum ErrorCodeMora {
     ERR_100129(100129, "Please enter correct combination of nationalId and mobile number"),
     ERR_100130(100130, "Missing base64 document field"),
     ERR_100131(100131, "Failed to process the EMDHA document Signing"),
-    ERR_100132(100132, "Failed to GET PAYMEN SCHEDULE");
+    ERR_100132(100132, "Failed to GET PAYMEN SCHEDULE"),
+    ERR_100136(100136, "Mobile Verification Failed");
 
     private int errCode;
     private String errMsg;

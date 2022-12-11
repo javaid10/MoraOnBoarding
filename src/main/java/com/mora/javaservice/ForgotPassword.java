@@ -11,6 +11,7 @@ import com.konylabs.middleware.common.JavaService2;
 import com.konylabs.middleware.controller.DataControllerRequest;
 import com.konylabs.middleware.controller.DataControllerResponse;
 import com.konylabs.middleware.dataobject.Result;
+import com.konylabs.middleware.session.Session;
 import com.mora.util.ErrorCodeMora;
 
 public class ForgotPassword implements JavaService2 {
@@ -20,6 +21,11 @@ public class ForgotPassword implements JavaService2 {
     public Object invoke(String methodId, Object[] inputArray, DataControllerRequest request,
             DataControllerResponse response) throws Exception {
 
+        Session session = request.getSession(true);
+        String natId = request.getParameter("nationalId");
+        session.setAttribute("NationalID", "natId");
+        session.setAttribute("key1", "Pavan");
+        
         Result result = new Result();
         if (preprocess(request, result)) {
             String mobileNumber = request.getParameter("mobileNumber");
@@ -54,7 +60,9 @@ public class ForgotPassword implements JavaService2 {
                 logger.debug("======> Mobile Verification Response " + mobileResponse);
                 JSONObject mobileResponseObj = new JSONObject(mobileResponse);
                 if (mobileResponseObj.has("isOwner") && mobileResponseObj.getBoolean("isOwner")) {
-                    result.addParam("verification", "success");
+                    result = ErrorCodeMora.ERR_60000.updateResultObject(result);
+                } else {
+                    result = ErrorCodeMora.ERR_100136.updateResultObject(result);
                 }
             } else {
                 result = ErrorCodeMora.ERR_100128.updateResultObject(result);

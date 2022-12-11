@@ -12,6 +12,7 @@ import com.konylabs.middleware.common.JavaService2;
 import com.konylabs.middleware.controller.DataControllerRequest;
 import com.konylabs.middleware.controller.DataControllerResponse;
 import com.konylabs.middleware.dataobject.Result;
+import com.konylabs.middleware.session.Session;
 import com.mora.util.ErrorCodeMora;
 import com.temenos.infinity.api.commons.encrypt.BCrypt;
 import com.temenos.onboarding.crypto.PasswordGenerator;
@@ -22,6 +23,14 @@ public class ForgotResetPassword implements JavaService2 {
     @Override
     public Object invoke(String methodId, Object[] inputArray, DataControllerRequest dcRequest,
             DataControllerResponse response) throws Exception {
+        
+        Session session = dcRequest.getSession(false);
+        String sessionTest1 = (String) session.getAttribute("key1");
+        String sessionTest2 = (String) session.getAttribute("NationalID");
+        
+        logger.debug("======> From Session 1" + sessionTest1);
+        logger.debug("======> From Session 1" + sessionTest2);
+        
         Result result = new Result();
         String userName = dcRequest.getParameter("nationalId").toString();
 
@@ -39,7 +48,7 @@ public class ForgotResetPassword implements JavaService2 {
         JSONObject updatePasswordObj = new JSONObject(updatePasswordResponse);
         if (updatePasswordObj.get("updatedRecords").toString().equals("1")) {
             result.addParam("status", "Password Reset successful");
-            result = ErrorCodeMora.ERR_100113.updateResultObject(result);
+            result = ErrorCodeMora.ERR_60000.updateResultObject(result);
             logger.debug("Password Reset successfully");
         } else {
             result.addParam("status", "Password Reset unsuccessful");

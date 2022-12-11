@@ -99,8 +99,11 @@ public class LoginProspect implements JavaService2 {
                 userAttrRecord.addParam(new Param("party_id", ""));//TODO customerObj.getJSONArray("customer").getJSONObject(0).getString("partyId")));
                 userAttrRecord.addParam(new Param("app_id", appId));
                 userAttrRecord.addParam(new Param("national_id", request.getParameter("UserName")));
-                userAttrRecord.addParam(new Param("mobile_number", getEmailId(result, request, customerId)));
-                userAttrRecord.addParam(new Param("email_id", getMobileNumber(result, request, customerId)));
+                
+                Map<String, String> customerCommunication = getEmailAndMobileNumber(result, request, customerId);
+                
+                userAttrRecord.addParam(new Param("mobile_number", customerCommunication.get("mobileNumber")));
+                userAttrRecord.addParam(new Param("email_id", customerCommunication.get("email")));
 
                 result.addRecord(securityAttrRecord);
                 result.addRecord(userAttrRecord);
@@ -142,27 +145,33 @@ public class LoginProspect implements JavaService2 {
         }
         return GenericConstants.LOAN_CREATED;
     }
-
-    public String getMobileNumber(Result result, DataControllerRequest request, String customerId) {
-        String mobileNumber = null;
-        String resp = null;
+    
+    public Map<String, String> getEmailAndMobileNumber(Result result, DataControllerRequest request, String customerId) {
+        Map<String, String> communicationMap = new HashMap<>();
         try {
             HashMap<String, Object> userInputs = new HashMap<>();
             userInputs.put("$filter", "Customer_id eq " + customerId);
-            resp = DBPServiceExecutorBuilder.builder().withServiceId("DBXDBServices")
+            String customerCommunication = DBPServiceExecutorBuilder.builder().withServiceId("DBXDBServices")
                     .withOperationId("dbxdb_customercommunication_get").withRequestParameters(userInputs).build()
                     .getResponse();
+            JSONObject customerCommunicationObj = new JSONObject(customerCommunication);
+            if (customerCommunicationObj.getJSONArray("customercommunication").length() > 0) {
+                for (Object customerComm : customerCommunicationObj.getJSONArray("customercommunication")) {
+                    JSONObject myJSONObject = (JSONObject) customerComm;
+                    if (myJSONObject.getString("Type_id").equalsIgnoreCase("COMM_TYPE_PHONE")) {
+                        communicationMap.put("mobileNumber", myJSONObject.getString("Value"));
+                    }
+                    
+                    if (myJSONObject.getString("Type_id").equalsIgnoreCase("COMM_TYPE_EMAIL")) {
+                        communicationMap.put("email", myJSONObject.getString("Value"));
+                    }
+                }
+            }
         } catch (Exception e) {
             logger.error("exception in getting data", e);
         }
 
-        JSONObject JsonResponse = new JSONObject(resp);
-        if (JsonResponse.getJSONArray("customercommunication").length() > 0) {
-            logger.error("error getting mobilenumber");
-
-            mobileNumber = JsonResponse.getJSONArray("customercommunication").getJSONObject(0).getString("Value");
-        }
-        return mobileNumber;
+        return communicationMap;
     }
 
     public String getEmailId(Result result, DataControllerRequest request, String customerId) {
