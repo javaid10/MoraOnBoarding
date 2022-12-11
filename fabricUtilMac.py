@@ -86,12 +86,6 @@ def uploadJar():
         mfcliFilePath, fabricUser, fabricPassword, fabricURL, authURL, jarFilePath, jarName), shell=True)
 
 
-def sendsms():
-  resp = requests.post('https://textbelt.com/text', {
-    'phone': '+919206274135',
-    'message': 'Hello Anitha you have won 5000000rs worth of gold please call 9206274135 for more information',
-    'key': 'textbelt',})
-  print(resp.json())
 
 inp = input(
     " 1 Build Upload and Publish \n 2 Build and Upload Jar \n 3 Publish app \n ")
