@@ -29,26 +29,29 @@ public class EmdhaSign implements JavaService2 {
 
         if (preProcess(dcRequest, dcResponse, result)) {
             if (dcRequest.getParameter("documentType").equals("1")) {
-
+                String address = "";
+                String regionProvince = "Riyadh";
                 String natid = dcRequest.getParameter("nationalId");
-//				result.addParam(new Param("status", "sucess"));
-//				result.addParam(new Param("documentHash","8f13b6b53259601353e8e84851fc069defb5730429cffe2c0fb2b7df6ca9001f"));
-//				result.addParam(new Param("transactionId","8cf11f09066647f1a7160e43b1e3c7ef"));
+                // result.addParam(new Param("status", "sucess"));
+                // result.addParam(new
+                // Param("documentHash","8f13b6b53259601353e8e84851fc069defb5730429cffe2c0fb2b7df6ca9001f"));
+                // result.addParam(new
+                // Param("transactionId","8cf11f09066647f1a7160e43b1e3c7ef"));
 
-//			    dbxdb_sp_get_details_for_emdha
-//			    nationalId
-//			    dbxdb_sp_update_portal_emdha_signing
-//			    applctn_id
-//			    signed_doc
+                // dbxdb_sp_get_details_for_emdha
+                // nationalId
+                // dbxdb_sp_update_portal_emdha_signing
+                // applctn_id
+                // signed_doc
                 String getDetails = getCustomDetails(natid);
                 JSONObject customDetails = new JSONObject(getDetails);
 
                 if (customDetails.getJSONArray("records").getJSONObject(0).length() > 0) {
 
                     String docBase = customDetails.getJSONArray("records").getJSONObject(0).optString("loan_contract");
-                    
-                    docBase = docBase.substring(2, docBase.length()-1);
-                    
+
+                    docBase = docBase.substring(2, docBase.length() - 1);
+
                     HashMap<String, Object> params = new HashMap<>();
                     params.put("signedBy",
                             customDetails.getJSONArray("records").getJSONObject(0).optString("FullName"));
@@ -57,10 +60,25 @@ public class EmdhaSign implements JavaService2 {
                     params.put("mobile", customDetails.getJSONArray("records").getJSONObject(0).optString("mobile"));
                     params.put("kycId", natid);
                     params.put("email", customDetails.getJSONArray("records").getJSONObject(0).optString("Value"));
-                    params.put("address",
-                            customDetails.getJSONArray("records").getJSONObject(0).optString("addressLine1"));
-                    params.put("regionProvince",
-                            customDetails.getJSONArray("records").getJSONObject(0).optString("City_id"));
+                    try {
+                        address = customDetails.getJSONArray("records").getJSONObject(0).optString("addressLine1");
+                    } catch (Exception e) {
+                        logger.error("Address fetch Failed = " + e.getMessage());
+                    }
+                    try {
+                        regionProvince = customDetails.getJSONArray("records").getJSONObject(0).optString("City_id");
+                    } catch (Exception e) {
+                        logger.error("Address fetch Failed = " + e.getMessage());
+                    }
+
+                    // params.put("address",
+                    //         customDetails.getJSONArray("records").getJSONObject(0).optString("addressLine1"));
+                    // params.put("regionProvince",
+                    //         customDetails.getJSONArray("records").getJSONObject(0).optString("City_id"));
+                    
+                    params.put("address", address);
+                    params.put("regionProvince",regionProvince);
+
                     params.put("docBase64",
                             docBase);
                     params.put("kycId", natid);
@@ -89,9 +107,11 @@ public class EmdhaSign implements JavaService2 {
 
             } else if (dcRequest.getParameter("documentType").equals("2")) {
 
-//				result.addParam(new Param("status", "sucess"));
-//				result.addParam(new Param("documentHash","8f13b6b53259601353e8e84851fc069defb5730429cffe2c0fb2b7df6ca9001f"));
-//				result.addParam(new Param("transactionId","8cf11f09066647f1a7160e43b1e3c7ef"));
+                // result.addParam(new Param("status", "sucess"));
+                // result.addParam(new
+                // Param("documentHash","8f13b6b53259601353e8e84851fc069defb5730429cffe2c0fb2b7df6ca9001f"));
+                // result.addParam(new
+                // Param("transactionId","8cf11f09066647f1a7160e43b1e3c7ef"));
             }
         }
 
