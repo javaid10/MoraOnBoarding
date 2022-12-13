@@ -84,7 +84,7 @@ public class LoginProspect implements JavaService2 {
                 logger.debug("======> Customer Application table " + customerApplicationResponse);
                 JSONObject customerApplilcation = new JSONObject(customerApplicationResponse);
                 String applicationStatus = customerApplilcation.getJSONArray("tbl_customerapplication").getJSONObject(0).getString("applicationStatus");
-                
+                String partyId = customerObj.getJSONArray("customer").getJSONObject(0).getString("partyId");
                 if (applicationStatus.equalsIgnoreCase(GenericConstants.PRO_ACTIVE)) {
                     applicationStatus = getApplicationStatus(customerApplilcation);
                 }
@@ -96,7 +96,7 @@ public class LoginProspect implements JavaService2 {
                 securityAttrRecord.addParam(new Param("session_token", sessionToken));
 
                 userAttrRecord.addParam(new Param(GenericConstants.user_id, customerId));
-                userAttrRecord.addParam(new Param("party_id", ""));//TODO customerObj.getJSONArray("customer").getJSONObject(0).getString("partyId")));
+                userAttrRecord.addParam(new Param("party_id", partyId));//TODO customerObj.getJSONArray("customer").getJSONObject(0).getString("partyId")));
                 userAttrRecord.addParam(new Param("app_id", appId));
                 userAttrRecord.addParam(new Param("national_id", request.getParameter("UserName")));
                 

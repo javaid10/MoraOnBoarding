@@ -94,11 +94,11 @@ public class LoanContractProcessor implements JavaService2 {
 
                         String emi = jsonSchedule.getJSONArray("body").getJSONObject(1)
                                 .optString("totalAmount");
-                        // String resSaab = updateSaadSabb(
-                        //         getLoanDetails.getJSONArray("tbl_customerapplication").getJSONObject(0)
-                        //                 .optString("id"),
-                        //         sabbNumber, sadadNumber);
-                        // logger.error("Update Saab and sadad number" + resSaab);
+                        String resSaab = updateSaadSabb(
+                                getLoanDetails.getJSONArray("tbl_customerapplication").getJSONObject(0)
+                                        .optString("id"),
+                                sabbNumber, sadadNumber);
+                        logger.error("Update Saab and sadad number" + resSaab);
                         JSONArray instDates = new JSONArray();
                         JSONArray months = new JSONArray();
                         JSONArray outstandingAmountR = new JSONArray();
@@ -204,7 +204,7 @@ public class LoanContractProcessor implements JavaService2 {
                         inputContract.put("$installment_number", tenor);
                         inputContract.put("$adminristive_fee_tax_inclusive_one", calcAdminFees(loanAmount));
                         inputContract.put("$selling_expense_tax_inclusive", "");
-                        inputContract.put("$sale_service_expense_tax_inclusive", "115 SAR");
+                        inputContract.put("$tax_inclusive_expense_service_sale", "115 SAR");
 
                         inputContract.put("$installment_number_one", tenor);// total installment
                         inputContract.put("$monthly_installment_two", monthlyRepay);
