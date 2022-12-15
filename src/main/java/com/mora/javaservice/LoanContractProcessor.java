@@ -188,7 +188,7 @@ public class LoanContractProcessor implements JavaService2 {
                         // inputContract.put("$national_address", "Riyadh");
 
                         // gettind details from nafaes order
-                        inputContract.put("$product_type_one", "Copper");
+                        inputContract.put("$product_typ_one", "Copper");
                         inputContract.put("$spacification", "Copper"); // needs change
                         inputContract.put("$number_weight", "Copper");// quantity from nafaes pool
                         inputContract.put("$product_price", loanAmount);// loan amount
@@ -260,7 +260,7 @@ public class LoanContractProcessor implements JavaService2 {
                         inputContract.put("$contract_number", appId); // need change Total payable (Profit +
                         inputContract.put("$amount_saa", "");
                         inputContract.put("$iban", UtilServices.checkNullString(sabbNumber)); // need change Total payable (Profit +
-                        inputContract.put("$due_date_of_first_installment", firstInstallDate); // first installment date
+                        inputContract.put("$due_date_of_first_instalment", firstInstallDate); // first installment date
                         inputContract.put("$due_date_of_last_installment", lastInstallDate); // need change Last
                         inputContract.put("$number_of_repament_years", String.valueOf(Integer.parseInt(tenor) / 12));
                         inputContract.put("$anuual_precentage_rate_apr", approx);
