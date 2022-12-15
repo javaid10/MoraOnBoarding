@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.codec.digest.HmacUtils;
+
+import com.mora.util.UtilServices;
 public class TestDate {
     private Map<String, String> inputParams = new HashMap<>();
 
@@ -30,9 +32,11 @@ public class TestDate {
         HijrahDate islamyDate = HijrahChronology.INSTANCE
         .date(LocalDate.of(cl.get(Calendar.YEAR), cl.get(Calendar.MONTH) + 1,
                 cl.get(Calendar.DATE)));
-            
-System.out.println(islamyDate);
+            System.out.println(islamyDate);
             System.out.println(islamyDate.format(outputFormatter));
+
+            String dfdfd = "";
+        System.out.println(UtilServices.checkNullString(dfdfd));
     }
     
     

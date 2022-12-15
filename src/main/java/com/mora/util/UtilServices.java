@@ -15,6 +15,15 @@ import org.json.JSONObject;
 
 public class UtilServices {
 
+
+    public static String checkNullString(String chStr){
+
+        if(chStr.isEmpty()){
+            return " ";
+        }
+
+        return chStr;
+    }
     /**
      * 
      * @param messageBody

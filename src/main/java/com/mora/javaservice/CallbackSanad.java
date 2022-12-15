@@ -64,8 +64,8 @@ public class CallbackSanad implements JavaService2 {
 
         String cusId = request.getParameter("nationalId");
         String logResponse = null;
-        String channelDevice = "Callbback   ";
-        String apiHost = "ABSHER_OTP";
+        String channelDevice = "Callback";
+        String apiHost = "SANAD_CALLBACK";
 
         String ipAddress = request.getRemoteAddr();
 
