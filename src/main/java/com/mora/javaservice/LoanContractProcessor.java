@@ -222,7 +222,7 @@ public class LoanContractProcessor implements JavaService2 {
                         logger.error("tenor value ============="+loanRate);
 
                         inputContract.put("$fixed_profit_margin_one", loanRate);
-                        inputContract.put("$fixed_profit_margin", loanRate);
+                        inputContract.put("$fixed_profit_mrgin", loanRate);
                         inputContract.put("$sale_service_expense_tax_inclusive", " ");
 
                         inputContract.put("$anuual_precentage_rate", approx);
@@ -265,7 +265,7 @@ public class LoanContractProcessor implements JavaService2 {
                         inputContract.put("$number_of_repament_years", String.valueOf(Integer.parseInt(tenor) / 12));
                         inputContract.put("$anuual_precentage_rate_apr", approx);
                         inputContract.put("$funding_contract_period", tenor);
-                        inputContract.put("$number_of_installment", tenor); // needs changes
+                        inputContract.put("$number_of_instalment", tenor); // needs changes
                         inputContract.put("$amount_of_monthly_installment_sar", emi); // EMI
                         inputContract.put("$due_date_of_first_installment_one", firstInstallDate);
                         inputContract.put("$due_date_of_last_installment_one", lastInstallDate);
