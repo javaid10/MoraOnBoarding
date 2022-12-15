@@ -295,7 +295,7 @@ public class LoanContractProcessor implements JavaService2 {
                                 getCustomerDetails.getJSONArray("customer").getJSONObject(0).optString("IDExpiryDate"));
                         inputContract.put("$phone_number_two", "NA");
                         inputContract.put("$how_did_you_know_about_ijara_financing_programe", "NA");
-                        inputContract.put("$administration_fee", calcAdminFees(loanAmount));
+                        inputContract.put("$administration_fee",UtilServices.checkNullString(calcAdminFees(loanAmount)));
                         inputContract.put("$employer", "NA"); // need change
                         inputContract.put("$city_three", "NA"); // need change
                         inputContract.put("$job_title", "NA"); // need change
@@ -378,15 +378,17 @@ public class LoanContractProcessor implements JavaService2 {
     private String calcAdminFees(String loanAmount) {
         loanAmount = loanAmount.replaceAll(",", "");
         float loanAmt = Float.valueOf(loanAmount);
-        float adminFess = (float) (loanAmt * (1 / 100));
+        int adminFess = (int)(loanAmt*(1.0f/100.0f));
         adminFess = Math.min(adminFess,5000);
+        logger.error("Admin feeessc  =========>>>>"+ String.valueOf(adminFess));
         return String.valueOf(adminFess);
     }
 
     private String calcAdminFeesTax(String loanAmount) {
         loanAmount = loanAmount.replaceAll(",", "");
         float loanAmt = Float.valueOf(loanAmount);
-        float adminFess = (float) (loanAmt * (1.15 / 100));
+        int adminFess = (int)(loanAmt*(1.15f/100.0f));
+        logger.error("Admin feeessc  =========>>>>"+ String.valueOf(adminFess));
         return String.valueOf(adminFess);
 
     }
