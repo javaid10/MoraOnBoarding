@@ -255,7 +255,7 @@ public class LoanContractProcessor implements JavaService2 {
                         inputContract.put("$adminristive_fee_tax_inclusive", calcAdminFeesTax(loanAmount));
                         inputContract.put("$insurance", "NA");
                         inputContract.put("$real_estate_appraisal_fee", "NA");
-                        inputContract.put("$sale_service_expense_tax_inclusive_one", "115");
+                        inputContract.put("$sale_service_expense_tax_inclusve_one", "115");
                         inputContract.put("$total_amount_to_be_paid", "115");
                         inputContract.put("$contract_number", appId); // need change Total payable (Profit +
                         inputContract.put("$amount_saa", "");
@@ -318,7 +318,7 @@ public class LoanContractProcessor implements JavaService2 {
                         inputContract.put("$funding_principal_amount", loanAmount);
                         inputContract.put("$total_funding_amount", loanAmount); // need change
                         inputContract.put("$annual_percentage_rate_one", approx);
-                        inputContract.put("$monthly_installment", monthlyRepay);
+                        inputContract.put("$monthly_instalment", monthlyRepay);
                         // inputContract.put("$monthly_installment", monthlyRepay);
                         inputContract.put("$annual_percentage_rate", approx);
 
