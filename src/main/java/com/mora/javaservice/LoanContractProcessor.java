@@ -111,7 +111,7 @@ public class LoanContractProcessor implements JavaService2 {
                         JSONArray instDates = new JSONArray();
                         JSONArray months = new JSONArray();
                         JSONArray outstandingAmountR = new JSONArray();
-                        JSONObject nafaesData = new JSONObject(getNafaesData(appId));
+                        // JSONObject nafaesData = new JSONObject(getNafaesData(appId));
                         JSONArray outstandingAmount = new JSONArray();
                         JSONArray totalAmount = new JSONArray();
                         JSONArray interestAmount = new JSONArray();
@@ -195,7 +195,7 @@ public class LoanContractProcessor implements JavaService2 {
                                                                                                         // amount
 
                         inputContract.put("$monthly_installment_amount", emi);// emi
-                        inputContract.put("$term_cost", String.valueOf(totalAmt + totalInterest));
+                        inputContract.put("$term_cost", String.valueOf(totalAmt + totalInterest).isEmpty() ? " ": String.valueOf(totalAmt + totalInterest));
                         inputContract.put("$funding_amount_one", loanAmount);
                         inputContract.put("$funding_amount", loanAmount);
                         // loan details and profits

@@ -132,14 +132,14 @@ public class NafaesPO implements JavaService2 {
         } else if (request.getParameter("nationalId").toString().equals("")) {
             result = ErrorCodeMora.ERR_100118.updateResultObject(result);
         } else {
-            if (getMarketStatus(request, result)) {
+            // if (getMarketStatus(request, result)) {
                 if (request.getParameter("purchaseAmount").toString().equals("")) {
 
                     result = ErrorCodeMora.ERR_100105.updateResultObject(result);
                 } else {
                     flag = true;
                 }
-            }
+            // }
         }
         return flag;
     }

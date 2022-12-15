@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.konylabs.middleware.common.JavaService2;
 import com.konylabs.middleware.controller.DataControllerRequest;
 import com.konylabs.middleware.controller.DataControllerResponse;
+import com.konylabs.middleware.dataobject.Param;
 import com.konylabs.middleware.dataobject.Result;
 import com.konylabs.middleware.exceptions.MiddlewareException;
 import com.mora.util.ErrorCodeMora;
@@ -23,7 +24,7 @@ public class CallbackSanad implements JavaService2 {
     public Object invoke(String methodId, Object[] inputArray, DataControllerRequest request,
             DataControllerResponse response) throws Exception {
         Result result = new Result();
-        if(preprocess(request, result)) {
+        if (preprocess(request, result)) {
             logger.error("<<<<<==============:::::::::::: Success ::::::::::===============>>>>>");
         }
         // { ‘id’: ‘93e207a2-ef1f-47b5-a1e0-eb29ab3e9673’, ‘reference_id’: ‘1231231212’,
@@ -31,7 +32,15 @@ public class CallbackSanad implements JavaService2 {
         HashMap<String, Object> requestParam = new HashMap();
         requestParam.put("applicationID", request.getParameter("reference_id"));
         String res = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
-                .withOperationId("dbxdb_sp_update_sanad_approval_by_applicationID").withRequestParameters(requestParam).build().getResponse();
+                .withOperationId("dbxdb_sp_update_sanad_approval_by_applicationID").withRequestParameters(requestParam)
+                .build().getResponse();
+        String requestJson = new ObjectMapper().writeValueAsString(requestParam);
+
+        if (auditLogData(request, response, requestJson, res)) {
+            result.addParam(new Param("auditLogStatus", "success"));
+        } else {
+            result.addParam(new Param("auditLogStatus", "failed"));
+        }
         return result;
     }
 
@@ -40,11 +49,10 @@ public class CallbackSanad implements JavaService2 {
         if (request.getParameter("status").toString().equals("")) {
             result = ErrorCodeMora.ERR_100133.updateResultObject(result);
         } else {
-            if(request.getParameter("status").toString().equalsIgnoreCase("approved")) {
+            if (request.getParameter("status").toString().equalsIgnoreCase("approved")) {
                 logger.error("sanad approved =======>>>>");
                 flag = true;
             }
-            
         }
         return flag;
     }

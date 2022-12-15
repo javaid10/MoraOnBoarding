@@ -28,10 +28,10 @@ public class AbsherOTP implements JavaService2 {
 		Result result = new Result();
 		HashMap<String, Object> absherRequest = new HashMap();
 		String res = null;
-		absherRequest.put("clientId", getclientId());
-		absherRequest.put("clientAuthorization", getclientAuthorization());
-		absherRequest.put("reason", getAbsherReason());
-		absherRequest.put("language", getAbsherLang());
+		// absherRequest.put("clientId", getclientId());
+		// absherRequest.put("clientAuthorization", getclientAuthorization());
+		// absherRequest.put("reason", getAbsherReason());
+		// absherRequest.put("language", getAbsherLang());
 		absherRequest.put("operatorId", request.getParameter("nationalId"));
 		absherRequest.put("customerId", request.getParameter("nationalId"));
 		String requestJson = new ObjectMapper().writeValueAsString(absherRequest);

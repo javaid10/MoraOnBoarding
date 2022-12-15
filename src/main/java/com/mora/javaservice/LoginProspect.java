@@ -83,12 +83,15 @@ public class LoginProspect implements JavaService2 {
                         .withOperationId("dbxdb_tbl_customerapplication_get").withRequestParameters(input).build().getResponse();
                 logger.debug("======> Customer Application table " + customerApplicationResponse);
                 JSONObject customerApplilcation = new JSONObject(customerApplicationResponse);
-                String applicationStatus = customerApplilcation.getJSONArray("tbl_customerapplication").getJSONObject(0).getString("applicationStatus");
-                String partyId = customerObj.getJSONArray("customer").getJSONObject(0).getString("partyId");
+                String applicationStatus = customerApplilcation.getJSONArray("tbl_customerapplication").getJSONObject(0).optString("applicationStatus");
+                String partyId = customerObj.getJSONArray("customer").getJSONObject(0).optString("partyId");
                 if (applicationStatus.equalsIgnoreCase(GenericConstants.PRO_ACTIVE)) {
                     applicationStatus = getApplicationStatus(customerApplilcation);
                 }
-                
+                if(partyId.isEmpty() || appId.isEmpty()){
+                    return ErrorCodeMora.ERR_100137.buildResponseForFailedLogin(result);
+                     
+                }
                 userAttrRecord.addParam(new Param("applicationStatus", applicationStatus));
                 
                 // generate session token
@@ -132,8 +135,8 @@ public class LoginProspect implements JavaService2 {
      * @return
      */
     private String getApplicationStatus(JSONObject customerApplilcation) {
-        Boolean csaApproval = customerApplilcation.getJSONArray("tbl_customerapplication").getJSONObject(0).getBoolean("csaApporval"); 
-        Boolean sanadApproval = customerApplilcation.getJSONArray("tbl_customerapplication").getJSONObject(0).getBoolean("sanadApproval");
+        Boolean csaApproval = customerApplilcation.getJSONArray("tbl_customerapplication").getJSONObject(0).optBoolean("csaApporval"); 
+        Boolean sanadApproval = customerApplilcation.getJSONArray("tbl_customerapplication").getJSONObject(0).optBoolean("sanadApproval");
         
         if (!sanadApproval) {
             return GenericConstants.SANAD_WAITING;
@@ -159,11 +162,11 @@ public class LoginProspect implements JavaService2 {
                 for (Object customerComm : customerCommunicationObj.getJSONArray("customercommunication")) {
                     JSONObject myJSONObject = (JSONObject) customerComm;
                     if (myJSONObject.getString("Type_id").equalsIgnoreCase("COMM_TYPE_PHONE")) {
-                        communicationMap.put("mobileNumber", myJSONObject.getString("Value"));
+                        communicationMap.put("mobileNumber", myJSONObject.optString("Value"));
                     }
                     
                     if (myJSONObject.getString("Type_id").equalsIgnoreCase("COMM_TYPE_EMAIL")) {
-                        communicationMap.put("email", myJSONObject.getString("Value"));
+                        communicationMap.put("email", myJSONObject.optString("Value"));
                     }
                 }
             }

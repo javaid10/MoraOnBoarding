@@ -1,10 +1,13 @@
 package com.mora.javaservice;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 import com.dbp.core.error.DBPApplicationException;
 import com.dbp.core.fabric.extn.DBPServiceExecutorBuilder;
@@ -12,7 +15,9 @@ import com.dbp.core.fabric.extn.DBPServiceExecutorBuilder;
 import com.konylabs.middleware.common.JavaService2;
 import com.konylabs.middleware.controller.DataControllerRequest;
 import com.konylabs.middleware.controller.DataControllerResponse;
+import com.konylabs.middleware.dataobject.Param;
 import com.konylabs.middleware.dataobject.Result;
+import com.konylabs.middleware.exceptions.MiddlewareException;
 import com.mora.util.ErrorCodeMora;
 
 public class LoanCreation implements JavaService2 {
@@ -44,10 +49,17 @@ public class LoanCreation implements JavaService2 {
                 String jsonresp = DBPServiceExecutorBuilder.builder().withServiceId("MSDocumentMora")
                         .withOperationId("SanadCreatePython").withRequestParameters(map).build()
                         .getResponse();
+                        String requestJson = new ObjectMapper().writeValueAsString(map);
 
+                        if (auditLogData(dcRequest, dcResponse, requestJson, jsonresp)) {
+                            result.addParam(new Param("auditLogStatus", "success"));
+                        }else {
+                            result.addParam(new Param("auditLogStatus", "failed"));
+            
+                        }
                 JSONObject sanadRespJsonObject = new JSONObject(jsonresp);
                 String sanadNum = sanadRespJsonObject.optString("sanadNumber");
-                    
+
                 result.addParam("ResponseCode", ErrorCodeMora.ERR_60000.toString());
                 result.addParam("Message", ErrorCodeMora.ERR_60000.getErrorMessage());
             }
@@ -56,15 +68,10 @@ public class LoanCreation implements JavaService2 {
         return result;
     }
 
-
-    private static void updateSanadNumber(String sanadNumber){
-
-
-            
-
-
+    private static void updateSanadNumber(String sanadNumber) {
 
     }
+
     public boolean createLoan(String cusId, String partyId, String appId) throws DBPApplicationException {
         String tenor = "";
         String loanAmt = "";
@@ -117,7 +124,7 @@ public class LoanCreation implements JavaService2 {
     public JSONObject getLoanDetails(String appId) throws DBPApplicationException {
 
         HashMap<String, Object> map = new HashMap<String, Object>();
-        
+
         map.put("$filter", "applicationID eq " + appId);
 
         String respo = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
@@ -213,6 +220,42 @@ public class LoanCreation implements JavaService2 {
             applicationId = JsonResponse.getJSONArray("customer").getJSONObject(0).getString("currentAppId");
         }
         return applicationId;
+    }
+
+    public boolean auditLogData(DataControllerRequest request, DataControllerResponse response, String req, String res)
+            throws DBPApplicationException, MiddlewareException {
+        UUID uuid = UUID.randomUUID();
+        String uuidAsString = uuid.toString();
+
+        String cusId = request.getParameter("nationalId");
+        String logResponse = null;
+        String channelDevice = "Mobile";
+        String apiHost = "SANAD";
+
+        String ipAddress = request.getRemoteAddr();
+
+        HashMap<String, Object> logdataRequestMap = new HashMap<String, Object>();
+        logdataRequestMap.put("id", uuidAsString);
+        logdataRequestMap.put("Customer_id", cusId);
+        logdataRequestMap.put("Application_id", "");
+        logdataRequestMap.put("channelDevice", channelDevice);
+        logdataRequestMap.put("apihost", apiHost);
+        logdataRequestMap.put("request_payload", req);
+        logdataRequestMap.put("reponse_payload", res);
+        logdataRequestMap.put("ipAddress", ipAddress);
+
+        logResponse = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
+                .withOperationId("dbxlogs_auditlog_create").withRequestParameters(logdataRequestMap).build()
+                .getResponse();
+
+        DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
+                .withOperationId("dbxlogs_auditlog_create").withRequestParameters(logdataRequestMap).build()
+                .getResponse();
+        if (logResponse != null && logResponse.length() > 0) {
+
+            return true;
+        }
+        return false;
     }
 
     private boolean preProcess(DataControllerRequest dcRequest, DataControllerResponse dcResponse, Result result) {

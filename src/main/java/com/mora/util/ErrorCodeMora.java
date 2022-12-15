@@ -50,7 +50,9 @@ public enum ErrorCodeMora {
     ERR_100130(100130, "Missing base64 document field"),
     ERR_100131(100131, "Failed to process the EMDHA document Signing"),
     ERR_100132(100132, "Failed to GET PAYMEN SCHEDULE"),
-    ERR_100136(100136, "Mobile Verification Failed");
+    ERR_100136(100136, "Mobile Verification Failed"),
+    ERR_100137(100137, "Your registration is not completed.\nPlease try again later.");
+
 
     private int errCode;
     private String errMsg;
