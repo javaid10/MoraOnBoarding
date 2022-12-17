@@ -26,11 +26,14 @@ public class CallbackSanad implements JavaService2 {
         Result result = new Result();
         if (preprocess(request, result)) {
             logger.error("<<<<<==============:::::::::::: Success ::::::::::===============>>>>>");
-        }
+        
         // { ‘id’: ‘93e207a2-ef1f-47b5-a1e0-eb29ab3e9673’, ‘reference_id’: ‘1231231212’,
         // ‘status’: ‘approved’, ‘updated_at’: ‘2019-08-06T20:45:41.889463+00:00’ }
+
+
         HashMap<String, Object> requestParam = new HashMap();
         requestParam.put("applicationID", request.getParameter("reference_id"));
+        
         String res = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
                 .withOperationId("dbxdb_sp_update_sanad_approval_by_applicationID").withRequestParameters(requestParam)
                 .build().getResponse();
@@ -41,6 +44,7 @@ public class CallbackSanad implements JavaService2 {
         } else {
             result.addParam(new Param("auditLogStatus", "failed"));
         }
+    }
         return result;
     }
 
