@@ -1,5 +1,6 @@
 package com.mora.javaservice;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,7 +14,6 @@ import java.util.Map;
 
 import org.apache.commons.codec.digest.HmacUtils;
 
-import com.mora.util.UtilServices;
 public class TestDate {
     private Map<String, String> inputParams = new HashMap<>();
 
@@ -25,6 +25,7 @@ public class TestDate {
     private String PHONE_NUMBER = "";
     private String APPLICATION_ID = "";
     private String CUSTOMER_ID = "";
+    private static final DecimalFormat df = new DecimalFormat("0.00");
 
     public static void main(String[] args) {
         Calendar cl = Calendar.getInstance();
@@ -35,8 +36,10 @@ public class TestDate {
             System.out.println(islamyDate);
             System.out.println(islamyDate.format(outputFormatter));
 
-            String dfdfd = "";
-        System.out.println(UtilServices.checkNullString(dfdfd));
+            Float nFloat = 100 + (15F/100 * 100);
+            double tes = 1323.2033443;
+        System.out.println(nFloat);
+        System.out.println(df.format(tes));
     }
     
     

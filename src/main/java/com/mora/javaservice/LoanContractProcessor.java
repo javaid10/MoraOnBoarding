@@ -1,5 +1,6 @@
 package com.mora.javaservice;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -33,6 +34,7 @@ public class LoanContractProcessor implements JavaService2 {
         private static final Logger logger = LogManager.getLogger(LoanContractProcessor.class);
 
         private String appId = "";
+        private static final DecimalFormat df = new DecimalFormat("0.00");
 
         @Override
         public Object invoke(String methodId, Object[] inputArray, DataControllerRequest request,
@@ -54,14 +56,21 @@ public class LoanContractProcessor implements JavaService2 {
                                                         getAddressDetails(request.getParameter("nationalId")));
 
                                         String nafaesFees = EnvironmentConfigurationsMora.NAFAES_FEES.getValue();
+                                        String adminFeesE = EnvironmentConfigurationsMora.ADMIN_FEES.getValue();
+                                        String adminFeesET = EnvironmentConfigurationsMora.ADMIN_FEES_TAX.getValue();
+
                                         String vatValue = EnvironmentConfigurationsMora.VAT_VALUE.getValue();
 
                                         String nafaesVat = "";
 
-                                        Float nafF = (float) Integer.valueOf(nafaesFees)
-                                                        + (Integer.valueOf(vatValue) / 100
-                                                                        * Integer.valueOf(nafaesFees));
+                                        Float nafF = Float.valueOf(nafaesFees)
+                                                        + (Float.valueOf(vatValue) / 100
+                                                                        * Float.valueOf(nafaesFees));
+                                        logger.error("Nafaes Feess ===========>>>>" + nafaesFees);
+                                        logger.error("Nafaes Vat ===========>>>>" + vatValue);
+
                                         nafaesVat = String.valueOf(nafF);
+                                        logger.error("Nafaes with Vat ===========>>>>" + nafaesVat);
                                         String loanAmountRequested = getLoanDetails
                                                         .getJSONArray("tbl_customerapplication").getJSONObject(0)
                                                         .optString("loanAmount");
@@ -86,7 +95,7 @@ public class LoanContractProcessor implements JavaService2 {
                                                         .getJSONObject(0)
                                                         .optString("loanRate");
 
-                                        logger.error("Loan Rate =========>>>"+loanRate);
+                                        logger.error("Loan Rate =========>>>" + loanRate);
                                         Map<String, String> inputContract = new HashMap<>();
                                         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                                         LocalDateTime now = LocalDateTime.now();
@@ -161,8 +170,6 @@ public class LoanContractProcessor implements JavaService2 {
                                                                                 .getJSONObject(0)
                                                                                 .optString("taxAmount"));
 
-
-
                                                 for (int i = 1; i < jsonSchedule.getJSONArray("body").length(); i++) {
                                                         totalInterest = totalInterest
                                                                         + Float.parseFloat(jsonSchedule
@@ -170,8 +177,8 @@ public class LoanContractProcessor implements JavaService2 {
                                                                                         .getJSONObject(i)
                                                                                         .optString("interestAmount"));
                                                         // totalPayable = totalPayable + Float.parseFloat(jsonSchedule
-                                                        //                 .getJSONArray("body").getJSONObject(i)
-                                                        //                 .optString("totalAmount"));
+                                                        // .getJSONArray("body").getJSONObject(i)
+                                                        // .optString("totalAmount"));
                                                         outstandingAmountR.put(
                                                                         jsonSchedule.getJSONArray("body")
                                                                                         .getJSONObject(i)
@@ -202,7 +209,9 @@ public class LoanContractProcessor implements JavaService2 {
                                                         months.put(i);
                                                 }
 
-                                                Float totalAmt = Float.parseFloat(loanAmount)  + totalInterest + chargeAmtF +taxAmtF; // total Amount the custome will pay
+                                                Float totalAmt = Float.parseFloat(loanAmount) + totalInterest
+                                                                + chargeAmtF + taxAmtF; // total Amount the custome will
+                                                                                        // pay
                                                 logger.error("Total Amount caluculated ::::+++>>>" + totalAmt);
 
                                                 logger.error("APPID ======" + appId);
@@ -258,14 +267,18 @@ public class LoanContractProcessor implements JavaService2 {
                                                 inputContract.put("$number_weight", "Copper");// quantity from nafaes
                                                                                               // pool
                                                 inputContract.put("$product_price", loanAmount);// loan amount
+                                                Float totSellPro = Float.parseFloat(loanAmount) + totalInterest;
+                                                logger.error("TotalInterest Value ====== >>>>>" + totalInterest);
+
+                                                logger.error("TotalSelling Profit ====== >>>>>" + totSellPro);
                                                 inputContract.put("$total_selling_price_with_profit",
-                                                                String.valueOf(totalAmt));// total loan
+                                                                String.valueOf(totSellPro));// total loan
 
                                                 inputContract.put("$percent",
                                                                 " (" + UtilServices.checkNullString(approx) + ") ");// approx
                                                                                                                     // value
                                                 inputContract.put("$percent_two", " (" + UtilServices
-                                                                .checkNullString(calcAdminFees(loanAmount)) + ") ");// admin
+                                                                .checkNullString(calcAdminFees(loanAmount,adminFeesE)) + ") ");// admin
                                                                                                                     // fees
                                                                                                                     // 1%
                                                                                                                     // of
@@ -273,17 +286,16 @@ public class LoanContractProcessor implements JavaService2 {
 
                                                 inputContract.put("$monthly_installment_amount", emi);// emi
                                                 inputContract.put("$term_cost",
-                                                                String.valueOf(totalAmt + totalInterest).isEmpty() ? " "
-                                                                                : String.valueOf(totalAmt
-                                                                                                + totalInterest));
+                                                                UtilServices.checkNullString(
+                                                                                df.format(totalInterest)));
                                                 inputContract.put("$funding_amount_one", loanAmount);
                                                 inputContract.put("$funding_amount", loanAmount);
                                                 // loan details and profits
-                                                inputContract.put("$contract_periode", term);
+                                                inputContract.put("$contract_periode", tenor);
                                                 inputContract.put("$contract_start_date", valueDate);
                                                 inputContract.put("$purpose_of_financing_loan", "Purchases");
                                                 inputContract.put("$adminristive_fee", UtilServices
-                                                                .checkNullString(calcAdminFees(loanAmount)));
+                                                                .checkNullString(calcAdminFees(loanAmount,adminFeesE)));
                                                 inputContract.put("$iban_two",
                                                                 UtilServices.checkNullString(sabbNumber));
 
@@ -293,7 +305,8 @@ public class LoanContractProcessor implements JavaService2 {
                                                 logger.error("tenor value =============" + tenor);
                                                 inputContract.put("$number_of_installment_one", tenor);// tenor in
                                                                                                        // months
-                                                inputContract.put("$all_sales_service_fee_inclusive", "115");
+                                                inputContract.put("$all_sales_service_fee_inclusive",
+                                                                UtilServices.checkNullString(nafaesVat));
                                                 inputContract.put("$tax", "15");
                                                 inputContract.put("$bank_name", "ساب");
                                                 inputContract.put("$account_name", "Virtual Account");// needs change
@@ -313,24 +326,27 @@ public class LoanContractProcessor implements JavaService2 {
                                                 inputContract.put("$sale_service_expense_inclusive_tax_inclusive", "");
                                                 inputContract.put("$installment_number", tenor);
                                                 inputContract.put("$adminristive_fee_tax_inclusive_one", UtilServices
-                                                                .checkNullString(calcAdminFees(loanAmount)));
-                                                inputContract.put("$selling_expense_tax_inclusive", " ");
-                                                inputContract.put("$tax_inclusive_expense_service_sale", "115");
+                                                                .checkNullString(calcAdminFeesTax(loanAmount,adminFeesET)));
+                                                inputContract.put("$selling_expense_tax_inclusive", UtilServices
+                                                                .checkNullString(String.valueOf(nafaesVat)));
+                                                inputContract.put("$tax_inclusive_expense_service_sale", UtilServices.checkNullString(nafaesVat));
 
                                                 inputContract.put("$installment_number_one", tenor);// total installment
                                                 inputContract.put("$monthly_installment_two", monthlyRepay);
-                                                inputContract.put("$total_profit", UtilServices.checkNullString(String.valueOf(totalInterest))); // profit calculation
-                                                                                                  // need change
+                                                inputContract.put("$total_profit", UtilServices.checkNullString(
+                                                                String.valueOf(df.format(totalInterest)))); // profit
+                                                                                                            // calculation
+                                                // need change
 
                                                 Float totalRepayAmount = totalInterest + Float.parseFloat(loanAmount);
-                                                inputContract.put("$total_repayment_amount",UtilServices.checkNullString(String.valueOf(totalRepayAmount))); 
-                                                                                                          
+                                                inputContract.put("$total_repayment_amount", UtilServices
+                                                                .checkNullString(String.valueOf(totalRepayAmount)));
+
                                                 inputContract.put(
-                                                                "$total_payment_amount_with_administrative_fees_and_selling_expenses_inclusive_tax",
+                                                                "$total_payment_amount_with_administrative_fees_and_selling_expenses _inclusive_tax",
                                                                 UtilServices.checkNullString(String
-                                                                                .valueOf(totalAmt))); // TODO
-                                                                                                                      // need
-                                                                                                                      // change
+                                                                                .valueOf(df.format(totalAmt))));
+
                                                 // customer details
                                                 inputContract.put("$beneficiary_name",
                                                                 getCustomerDetails.getJSONArray("customer")
@@ -346,15 +362,19 @@ public class LoanContractProcessor implements JavaService2 {
                                                 inputContract.put("$contract_refrence_number", appId);
                                                 inputContract.put("$contract_reference_number", appId);
                                                 inputContract.put("$funding_loan_amount", loanAmount);
-                                                inputContract.put("$total_funding_cost", loanAmount);
-                                                inputContract.put("$terms_cost", loanAmount); // need change profit
-                                                                                              // amount
+                                                Float totalFundingAmount = Float.parseFloat(loanAmount) + totalInterest;
+                                                inputContract.put("$total_funding_cost", UtilServices
+                                                                .checkNullString(String.valueOf(totalFundingAmount)));
+                                                inputContract.put("$terms_cost",
+                                                                String.valueOf(df.format(totalInterest)));
                                                 inputContract.put("$adminristive_fee_tax_inclusive",
-                                                                calcAdminFeesTax(loanAmount));
-                                                inputContract.put("$insurance", "NA");
-                                                inputContract.put("$real_estate_appraisal_fee", "NA");
+                                                                calcAdminFeesTax(loanAmount,adminFeesET));
+                                                inputContract.put("$insurance", "لا ينطبق");
+                                                inputContract.put("$real_estate_appraisal_fee", "لا ينطبق");
                                                 inputContract.put("$sale_service_expense_tax_inclusve_one", "115");
-                                                inputContract.put("$total_amount_to_be_paid", "115");
+                                                Float loanAmtInt = Float.parseFloat(loanAmount) + totalInterest;
+                                                inputContract.put("$total_amount_to_be_paid", UtilServices
+                                                                .checkNullString(String.valueOf(loanAmtInt)));
                                                 inputContract.put("$contract_number", appId); // need change Total
                                                                                               // payable (Profit +
                                                 inputContract.put("$amount_saa", "");
@@ -371,7 +391,7 @@ public class LoanContractProcessor implements JavaService2 {
                                                                                                                      // change
                                                                                                                      // Last
                                                 inputContract.put("$number_of_repament_years",
-                                                                String.valueOf(Integer.parseInt(tenor) / 12));
+                                                                "(" + String.valueOf(tenor) + ")/12");
                                                 inputContract.put("$anuual_precentage_rate_apr", approx);
                                                 inputContract.put("$funding_contract_period", tenor);
                                                 inputContract.put("$number_of_instalment", tenor); // needs changes
@@ -394,7 +414,7 @@ public class LoanContractProcessor implements JavaService2 {
                                                                 getCustomerDetails.getJSONArray("customer")
                                                                                 .getJSONObject(0)
                                                                                 .optString("FullName"));
-                                                inputContract.put("$nationality_two", "NA"); // need change
+                                                inputContract.put("$nationality_two", "لا ينطبق"); // need change
                                                 inputContract.put("$marital_status", "Married"); // need change
                                                 inputContract.put("$id_resident_address_number",
                                                                 getCustomerDetails.getJSONArray("customer")
@@ -413,21 +433,22 @@ public class LoanContractProcessor implements JavaService2 {
                                                                 getCustomerDetails.getJSONArray("customer")
                                                                                 .getJSONObject(0)
                                                                                 .optString("IDExpiryDate"));
-                                                inputContract.put("$phone_number_two", "NA");
+                                                inputContract.put("$phone_number_two", "لا ينطبق");
                                                 inputContract.put("$how_did_you_know_about_ijara_financing_programe",
-                                                                "NA");
+                                                                "لا ينطبق");
                                                 inputContract.put("$administration_fee", UtilServices
-                                                                .checkNullString(calcAdminFees(loanAmount)));
-                                                inputContract.put("$employer", "NA"); // need change
-                                                inputContract.put("$city_three", "NA"); // need change
-                                                inputContract.put("$job_title", "NA"); // need change
-                                                inputContract.put("$expenses_solidarity", "NA");
-                                                inputContract.put("$fiduciary_obligations", "NA");
+                                                                .checkNullString(calcAdminFees(loanAmount,adminFeesE)));
+                                                inputContract.put("$employer", "لا ينطبق"); // need change
+                                                inputContract.put("$city_three", "لا ينطبق"); // need change
+                                                inputContract.put("$job_title", "لا ينطبق"); // need change
+                                                inputContract.put("$expenses_solidarity", "لا ينطبق");
+                                                inputContract.put("$fiduciary_obligations", "لا ينطبق");
                                                 inputContract.put("$contract_end_date", lastInstallDate);
                                                 inputContract.put("$sale_service_expense_inclusive_tax",
-                                                                lastInstallDate);
+                                                                UtilServices.checkNullString(
+                                                                                String.valueOf(nafaesVat)));
 
-                                                inputContract.put("$basic_salary", "NA"); // need change
+                                                inputContract.put("$basic_salary", "لا ينطبق"); // need change
                                                 inputContract.put("$customer_name_one",
                                                                 getCustomerDetails.getJSONArray("customer")
                                                                                 .getJSONObject(0)
@@ -445,7 +466,8 @@ public class LoanContractProcessor implements JavaService2 {
                                                                                 .getJSONObject(0)
                                                                                 .optString("UserName"));
                                                 inputContract.put("$funding_principal_amount", loanAmount);
-                                                inputContract.put("$total_funding_amount", loanAmount); // need change
+                                                inputContract.put("$total_funding_amount", String.valueOf(totSellPro)); // need
+                                                                                                                        // change
                                                 inputContract.put("$annual_percentage_rate_one", approx);
                                                 inputContract.put("$monthly_instalment", monthlyRepay);
                                                 // inputContract.put("$monthly_installment", monthlyRepay);
@@ -514,21 +536,22 @@ public class LoanContractProcessor implements JavaService2 {
                 return result;
         }
 
-        private String calcAdminFees(String loanAmount) {
+        private String calcAdminFees(String loanAmount, String adminFeesE) {
                 loanAmount = loanAmount.replaceAll(",", "");
                 float loanAmt = Float.valueOf(loanAmount);
-                int adminFess = (int) (loanAmt * (1.0f / 100.0f));
+                int adminFess = (int) (loanAmt * (Float.parseFloat(adminFeesE) / 100.0f));
                 adminFess = Math.min(adminFess, 5000);
                 logger.error("Admin feeessc  =========>>>>" + String.valueOf(adminFess));
                 return String.valueOf(adminFess);
         }
 
-        private String calcAdminFeesTax(String loanAmount) {
+        private String calcAdminFeesTax(String loanAmount,String adminFeesET) {
                 loanAmount = loanAmount.replaceAll(",", "");
                 float loanAmt = Float.valueOf(loanAmount);
-                int adminFess = (int) (loanAmt * (1.15f / 100.0f));
-                logger.error("Admin feeessc  =========>>>>" + String.valueOf(adminFess));
-                return String.valueOf(adminFess);
+
+                Float adminFeesT = (loanAmt * ((Float.parseFloat(adminFeesET)) / 100.0f));
+                logger.error("Admin feeessc  =========>>>>" + String.valueOf(adminFeesT));
+                return String.valueOf(adminFeesT);
 
         }
 
