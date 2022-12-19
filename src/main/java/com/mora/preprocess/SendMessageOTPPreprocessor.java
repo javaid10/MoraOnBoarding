@@ -1,10 +1,4 @@
-/**
- * SendMessageOTPPreprocessor.java
- * 
- * @author  Veera
- * @version 1.0
- * @since   2022-12-16 
- */
+
 package com.mora.preprocess;
 
 import java.util.HashMap;
@@ -30,8 +24,9 @@ public class SendMessageOTPPreprocessor implements DataPreProcessor2 {
             throws Exception {
         logger.debug("======> SendMessageOTPPreprocessor - Begin");
         String otpType = (String) input.get("otpType");
-        if (StringUtils.isNotBlank(otpType)) {
-            Session session = request.getSession(false);
+        // Session session = request.getSession();
+        Session session = request.getSession(false);
+        if (StringUtils.isNotBlank(otpType) && session != null) {
             String OTP = (String) session.getAttribute("Otp");
             logger.debug("======> OTP from Session " + OTP );
             String message = getMessageBody(otpType, OTP);

@@ -264,7 +264,7 @@ public class LoanContractProcessor implements JavaService2 {
                                                 // gettind details from nafaes order
                                                 inputContract.put("$product_typ_one", "Copper");
                                                 inputContract.put("$spacification", "Copper"); // needs change
-                                                inputContract.put("$number_weight", "Copper");// quantity from nafaes
+                                                inputContract.put("$number_weight", "0.81667");// quantity from nafaes
                                                                                               // pool
                                                 inputContract.put("$product_price", loanAmount);// loan amount
                                                 Float totSellPro = Float.parseFloat(loanAmount) + totalInterest;
