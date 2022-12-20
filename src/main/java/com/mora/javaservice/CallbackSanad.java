@@ -76,7 +76,7 @@ public class CallbackSanad implements JavaService2 {
         HashMap<String, Object> logdataRequestMap = new HashMap<String, Object>();
         logdataRequestMap.put("id", uuidAsString);
         logdataRequestMap.put("Customer_id", cusId);
-        logdataRequestMap.put("Application_id", "");
+        logdataRequestMap.put("Application_id", request.getParameter("reference_id"));
         logdataRequestMap.put("channelDevice", channelDevice);
         logdataRequestMap.put("apihost", apiHost);
         logdataRequestMap.put("request_payload", req);
@@ -87,9 +87,6 @@ public class CallbackSanad implements JavaService2 {
                 .withOperationId("dbxlogs_auditlog_create").withRequestParameters(logdataRequestMap).build()
                 .getResponse();
 
-        DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
-                .withOperationId("dbxlogs_auditlog_create").withRequestParameters(logdataRequestMap).build()
-                .getResponse();
         if (logResponse != null && logResponse.length() > 0) {
 
             return true;

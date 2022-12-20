@@ -248,9 +248,7 @@ public class LoanCreation implements JavaService2 {
                 .withOperationId("dbxlogs_auditlog_create").withRequestParameters(logdataRequestMap).build()
                 .getResponse();
 
-        DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
-                .withOperationId("dbxlogs_auditlog_create").withRequestParameters(logdataRequestMap).build()
-                .getResponse();
+      
         if (logResponse != null && logResponse.length() > 0) {
 
             return true;

@@ -41,18 +41,31 @@ import pync
 # toast = ToastNotifier()
 
 
+# mfcliFilePath = "/Users/rajathv/moraFinance/moraJavaService/Util/mfcli.jar"
+# mavenBuildPath = "/Users/rajathv/moraFinance/moraJavaService"
+# jarFilePath = "/Users/rajathv/moraFinance/moraJavaService/target/MoraOnboarding-0.0.1-SNAPSHOT.jar"
+# jarName = "MoraOnboarding-0.0.1-SNAPSHOT.jar"
+# targetJarName = "MoraOnboarding-0.0.1-SNAPSHOT.jar"
+# fabricURL = "https://api2.staging.morafinance.com:8443"
+# authURL = "https://api2.staging.morafinance.com:8443"
+# appName = "Origination"
+# fabricUser = "rajath@bank.com"
+# fabricPassword = "Kony@1234"
+# envName = "Dev"
+
+
+
 mfcliFilePath = "/Users/rajathv/moraFinance/moraJavaService/Util/mfcli.jar"
 mavenBuildPath = "/Users/rajathv/moraFinance/moraJavaService"
 jarFilePath = "/Users/rajathv/moraFinance/moraJavaService/target/MoraOnboarding-0.0.1-SNAPSHOT.jar"
 jarName = "MoraOnboarding-0.0.1-SNAPSHOT.jar"
 targetJarName = "MoraOnboarding-0.0.1-SNAPSHOT.jar"
-fabricURL = "https://api2.staging.morafinance.com:8443"
-authURL = "https://api2.staging.morafinance.com:8443"
+fabricURL = "https://api1.morafinance.com"
+authURL = "https://api1.morafinance.com"
 appName = "Origination"
 fabricUser = "rajath@bank.com"
 fabricPassword = "Kony@1234"
-envName = "Dev"
-
+envName = "Prodfnf"
 
 # mfcliFilePath = "mfcli.jar"
 # mavenBuildPath = "/Users/rajathv/moraFinance/moraJavaService"
