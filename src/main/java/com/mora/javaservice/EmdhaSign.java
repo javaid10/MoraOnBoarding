@@ -59,7 +59,7 @@ public class EmdhaSign implements JavaService2 {
                             customDetails.getJSONArray("records").getJSONObject(0).optString("ArFullName"));
                     params.put("mobile", customDetails.getJSONArray("records").getJSONObject(0).optString("mobile"));
                     params.put("kycId", natid);
-                    params.put("email", customDetails.getJSONArray("records").getJSONObject(0).optString("Value"));
+                    // params.put("email", customDetails.getJSONArray("records").getJSONObject(0).optString("Value"));
                     try {
                         address = customDetails.getJSONArray("records").getJSONObject(0).optString("addressLine1");
                     } catch (Exception e) {
