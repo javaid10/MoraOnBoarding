@@ -1,73 +1,116 @@
+/**
+ * NafaesSO.java
+ */
 package com.mora.javaservice;
 
-
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.dbp.core.error.DBPApplicationException;
 import com.dbp.core.fabric.extn.DBPServiceExecutorBuilder;
 import com.konylabs.middleware.common.JavaService2;
 import com.konylabs.middleware.controller.DataControllerRequest;
 import com.konylabs.middleware.controller.DataControllerResponse;
+import com.konylabs.middleware.dataobject.Result;
+import com.mora.util.ErrorCodeMora;
+import com.mora.util.HTTPOperations;
 
 public class NafaesSO implements JavaService2 {
     private static final Logger LOG = LogManager.getLogger(NafaesSO.class);
+    private static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
 
-	@Override
-	public Object invoke(String methodId, Object[] inputArray, DataControllerRequest request,
-			DataControllerResponse response) throws Exception {
-	    LOG.debug("======> NafaesSO - Begin");
-	    
-	    JSONObject nafaesData = getNafaesData();
-	    
-	    for (Object nafaesObj : nafaesData.getJSONArray("nafaes")) {
-	        JSONObject nafaes = (JSONObject) nafaesObj;
-	        callSaleOrder(nafaes);
-	        
-	    }
-	    
-	    LOG.debug("======> NafaesSO - End");
-	    return null;
-	}
-	
-	/**
-	 * 
-	 * @param nafaesObj
-	 */
-	private void callSaleOrder(JSONObject nafaesObj) {
+    @Override
+    public Object invoke(String methodId, Object[] inputArray, DataControllerRequest request,
+            DataControllerResponse response) throws Exception {
+        LOG.debug("======> NafaesSO - Begin");
+        Result result = new Result();
+        JSONObject nafaesData = getNafaesData();
+        if (nafaesData == null) {
+            LOG.debug("======> Nafaes SO Failed to Process to fetch the Nafaes Data from DB (OR) No Records found in the DB");
+            return ErrorCodeMora.ERR_100138.updateResultObject(result);
+        }
+
+        for (Object nafaesObj : nafaesData.getJSONArray("nafaes")) {
+            JSONObject nafaes = (JSONObject) nafaesObj;
+            JSONObject saleOrderobj = callSaleOrder(nafaes);
+            if (saleOrderobj == null) {
+                LOG.debug("======> Nafaes SO Failed to Process the Sell Order service call");
+                return ErrorCodeMora.ERR_100138.updateResultObject(result);
+            }
+            String saleOrderStatus = saleOrderobj.getString("status");
+            if (StringUtils.equalsIgnoreCase(saleOrderStatus, "success")) {
+                String customerApplicationId = getCustomerApplicationId(nafaes.getString("applicationid"));
+                updateCustomerApplicationData(customerApplicationId);
+            }
+        }
+        LOG.debug("======> NafaesSO - End");
+        return null;
+    }
+
+    public static void main(String[] args) {
+        JSONObject nafaesData = new JSONObject();
+        if (nafaesData == null || (nafaesData.has("tbl_customerapplication") && nafaesData.getJSONArray("tbl_customerapplication").length() > 0)) {
+            System.out.println("=========");
+        } else {
+            System.out.println("8**********");
+        }
+    }
+    
+    /**
+     * 
+     * @param nafaesObj
+     */
+    private JSONObject callSaleOrder(JSONObject nafaesObj) {
+        JSONObject saleOrderResponse = null;
         try {
             Map<String, Object> inputParam = new HashMap<>();
             inputParam.put("uuid", generateUUID() + "-SO");
-            inputParam.put("accessToken", nafaesObj.getString("accessToken"));
+            inputParam.put("accessToken", getAccessToken());
             inputParam.put("referenceNo", nafaesObj.getString("referencenumber"));
             inputParam.put("orderType", "SO");
             inputParam.put("lng", "2");
-            String saleOrderResult = DBPServiceExecutorBuilder.builder().withServiceId("NafaesRestAPI").withOperationId("SaleOrder_PushMethod").withRequestParameters(inputParam).build().getResponse();
-            LOG.debug("======> Sale Order " + saleOrderResult);
+            String saleOrderResult = DBPServiceExecutorBuilder.builder().withServiceId("NafaesRestAPI")
+                    .withOperationId("SaleOrder_PushMethod").withRequestParameters(inputParam).build().getResponse();
+            LOG.debug("======> NafaesSO - Sale Order " + saleOrderResult);
+            saleOrderResponse = new JSONObject(saleOrderResult);
         } catch (Exception ex) {
             LOG.error("ERROR callSaleOrder :: " + ex);
         }
-	}
+        return saleOrderResponse;
+    }
 
-	
-	   /**
+    /**
      * 
      * @param getCustomerData
      * @param dataControllerRequest
      * @return
      */
     private JSONObject getNafaesData() {
-        JSONObject nafaesObj = new JSONObject();
+        JSONObject nafaesObj = null;
         try {
             Map<String, Object> inputParams = new HashMap<>();
-            inputParams.put("$filter", "applicationid");
-            String nafaesData = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices").withOperationId("nafaes_get").withRequestParameters(inputParams).build()
-            .getResponse();
-            LOG.debug("======> nafaesData " + nafaesData);
+            StringBuilder filter = new StringBuilder();
+            filter.append("purchaseorder eq 1").append(" and ");
+            filter.append("sellorder eq 0").append(" and ");
+            filter.append("transferorder eq 0").append(" and ");
+            filter.append("createdts gt ").append(get22HoursBeforeCurrentDate()).append(" and ");
+            filter.append("createdts lt ").append(getCurrentDate());
+            LOG.debug("======> Nafaes - Filter - " + filter);
+            inputParams.put("$filter", filter.toString());
+            String nafaesData = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
+                    .withOperationId("nafaes_get").withRequestParameters(inputParams).build()
+                    .getResponse();
+            LOG.debug("======> NafaesSO - nafaesData " + nafaesData);
             nafaesObj = new JSONObject(nafaesData);
         } catch (Exception ex) {
             LOG.error("ERROR getNafaesData :: " + ex);
@@ -75,12 +118,119 @@ public class NafaesSO implements JavaService2 {
         return nafaesObj;
     }
 
-	/**
-	 * 
-	 * @return
-	 */
+    /**
+     * 
+     * @param dataControllerRequest
+     * @return
+     */
+    private String getCustomerApplicationId(String nafaesApplicationId) {
+        String customerApplicationId = null;
+        try {
+            Map<String, Object> inputParams = new HashMap<>();
+            inputParams.put("$filter", "applicationID eq " + nafaesApplicationId);
+            String customerApplicationData = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
+                    .withOperationId("tbl_customerapplication_get").withRequestParameters(inputParams).build()
+                    .getResponse();
+            LOG.debug("======> NafaesSO -Customer Application Data: " + customerApplicationData);
+            JSONObject customerApplicationObj = new JSONObject(customerApplicationData);
+            customerApplicationId = customerApplicationObj.getJSONArray("tbl_customerapplication").getJSONObject(0)
+                    .getString("id");
+        } catch (Exception ex) {
+            LOG.error("======> Error while processing the getCustomerApplicationData : " + ex);
+        }
+        return customerApplicationId;
+    }
+
+    /**
+     * SID_SUSPENDED - applicationStatus
+     * 
+     * @param inputParams
+     * @param dataControllerRequest
+     */
+    private void updateCustomerApplicationData(String customerApplicationId) {
+        String customerApplicationResponse = null;
+        try {
+            Map<String, Object> inputParams = new HashMap<>();
+            inputParams.put("id", customerApplicationId);
+            inputParams.put("applicationStatus", "SID_SUSPENDED");
+            customerApplicationResponse = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
+                    .withOperationId("tbl_customerapplication_update").withRequestParameters(inputParams).build()
+                    .getResponse();
+        } catch (DBPApplicationException e) {
+            LOG.debug("======> Error while processing the customer application update");
+        }
+        LOG.debug("======> Update Customer Application Table: " + customerApplicationResponse);
+    }
+
+    /**
+     * 
+     * @return
+     */
     private static String generateUUID() {
         return UUID.randomUUID().toString();
     }
 
+    /**
+     * @return
+     */
+    private static String getAccessToken() {
+        LOG.debug("==========> Nafaes - excuteLogin - Begin");
+        String authToken = null;
+
+        String loginURL = "https://testapi.nafaes.com/oauth/token?grant_type=password&username=APINIG1102&client_id=IFCSUD2789";
+        LOG.debug("==========> Login URL  :: " + loginURL);
+        HashMap<String, String> paramsMap = new HashMap<>();
+        paramsMap.put("password", "<fq$h(59@3");
+        paramsMap.put("client_secret", "$69$is9@n>");
+
+        HashMap<String, String> headersMap = new HashMap<String, String>();
+
+        String endPointResponse = HTTPOperations.hitPOSTServiceAndGetResponse(loginURL, paramsMap, null, headersMap);
+        JSONObject responseJson = getStringAsJSONObject(endPointResponse);
+        LOG.debug("==========> responseJson :: " + responseJson);
+        authToken = responseJson.getString("access_token");
+        LOG.debug("==========> authToken :: " + authToken);
+        LOG.debug("==========> Nafaes - excuteLogin - End");
+        return authToken;
+    }
+
+    /**
+     * Converts the given String into the JSONObject
+     *
+     * @param jsonString
+     * @return
+     */
+    public static JSONObject getStringAsJSONObject(String jsonString) {
+        JSONObject generatedJSONObject = new JSONObject();
+        if (StringUtils.isBlank(jsonString)) {
+            return null;
+        }
+        try {
+            generatedJSONObject = new JSONObject(jsonString);
+            return generatedJSONObject;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 
+     * @return
+     */
+    private static String getCurrentDate() {
+        SimpleDateFormat formatter = new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS);
+        return formatter.format(new Date(System.currentTimeMillis()));
+    }
+
+    /**
+     * 
+     * @return
+     */
+    private static String get22HoursBeforeCurrentDate() {
+        SimpleDateFormat formatter = new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS);
+        Calendar calender = Calendar.getInstance();
+        calender.add(Calendar.HOUR, -22);
+        return formatter.format(calender.getTime());
+    }
 }

@@ -93,5 +93,17 @@ public interface GenericConstants {
     String SANAD_WAITING = "SANAD_WAITING";
     String CSA_APPROVAL_WAITING = "CSA_APPROVAL_WAITING";
     String PENDING_LOAN_CREATION = "PENDING_LOAN_CREATION";
+    
+    
+    /**
+     * OTP Messages
+     */
+    String MORA_REGISTRATION = "One Time Password (OTP) Code: ##OTP## Reason: Registration with Mora";
+
+    String SIMHA_CONSENT = "One Time Password (OTP) Code: ##OTP## Reason: Confirmation and Acceptance of SIMAH consent and Mora Terms &amp; Conditions.";
+
+    String ABHSER_TOKEN = "Dear Customer, Please use the OTP number ##OTP## to complete your request for a Cash loan for purchases purpose with MORA, in case you did not request this service please contact Mora";
+
+    String PASSWORD_RESET = "One Time Password (OTP) Code: ##OTP## Reason: Password Reset";
 
 }

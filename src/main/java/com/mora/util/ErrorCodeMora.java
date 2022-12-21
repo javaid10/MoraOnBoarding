@@ -51,7 +51,8 @@ public enum ErrorCodeMora {
     ERR_100131(100131, "Failed to process the EMDHA document Signing"),
     ERR_100132(100132, "Failed to GET PAYMEN SCHEDULE"),
     ERR_100136(100136, "Mobile Verification Failed"),
-    ERR_100137(100137, "Your registration is not completed.\nPlease try again later.");
+    ERR_100137(100137, "Your registration is not completed.\nPlease try again later."),
+    ERR_100138(100138, "Nafaes SO failed to Process");
 
 
     private int errCode;
