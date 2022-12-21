@@ -2,6 +2,7 @@ package com.mora.javaservice;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
@@ -49,6 +50,7 @@ public class EmdhaSign implements JavaService2 {
                 if (customDetails.getJSONArray("records").getJSONObject(0).length() > 0) {
 
                     String docBase = customDetails.getJSONArray("records").getJSONObject(0).optString("loan_contract");
+                    String customerId = customDetails.getJSONArray("customer").getJSONObject(0).getString("id");
 
                     docBase = docBase.substring(2, docBase.length() - 1);
 
@@ -57,7 +59,10 @@ public class EmdhaSign implements JavaService2 {
                             customDetails.getJSONArray("records").getJSONObject(0).optString("FullName"));
                     params.put("arabicName",
                             customDetails.getJSONArray("records").getJSONObject(0).optString("ArFullName"));
-                    params.put("mobile", customDetails.getJSONArray("records").getJSONObject(0).optString("mobile"));
+                    // params.put("mobile", customDetails.getJSONArray("records").getJSONObject(0).optString("mobile"));
+                    Map<String, String> customerCommunication = getEmailAndMobileNumber(result, dcRequest, customerId);
+
+                    params.put("mobile",customerCommunication.get("mobileNumber"));
                     params.put("kycId", natid);
                     // params.put("email", customDetails.getJSONArray("records").getJSONObject(0).optString("Value"));
                     try {
@@ -129,6 +134,34 @@ public class EmdhaSign implements JavaService2 {
             return true;
         }
 
+    }
+
+    public Map<String, String> getEmailAndMobileNumber(Result result, DataControllerRequest request, String customerId) {
+        Map<String, String> communicationMap = new HashMap<>();
+        try {
+            HashMap<String, Object> userInputs = new HashMap<>();
+            userInputs.put("$filter", "Customer_id eq " + customerId);
+            String customerCommunication = DBPServiceExecutorBuilder.builder().withServiceId("DBXDBServices")
+                    .withOperationId("dbxdb_customercommunication_get").withRequestParameters(userInputs).build()
+                    .getResponse();
+            JSONObject customerCommunicationObj = new JSONObject(customerCommunication);
+            if (customerCommunicationObj.getJSONArray("customercommunication").length() > 0) {
+                for (Object customerComm : customerCommunicationObj.getJSONArray("customercommunication")) {
+                    JSONObject myJSONObject = (JSONObject) customerComm;
+                    if (myJSONObject.getString("Type_id").equalsIgnoreCase("COMM_TYPE_PHONE")) {
+                        communicationMap.put("mobileNumber", myJSONObject.optString("Value"));
+                    }
+                    
+                    if (myJSONObject.getString("Type_id").equalsIgnoreCase("COMM_TYPE_EMAIL")) {
+                        communicationMap.put("email", myJSONObject.optString("Value"));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("exception in getting data", e);
+        }
+
+        return communicationMap;
     }
 
     private String getCustomDetails(String natId) {

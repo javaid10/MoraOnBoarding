@@ -146,6 +146,9 @@ public class LoginProspect implements JavaService2 {
             return GenericConstants.CSA_APPROVAL_WAITING;
 
         }
+        if(csaApproval && sanadApproval){
+            return GenericConstants.PENDING_LOAN_CREATION;
+        }
         return GenericConstants.LOAN_CREATED;
     }
     

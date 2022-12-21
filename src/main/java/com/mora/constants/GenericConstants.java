@@ -92,4 +92,6 @@ public interface GenericConstants {
     String PRO_ACTIVE = "SID_PRO_ACTIVE";
     String SANAD_WAITING = "SANAD_WAITING";
     String CSA_APPROVAL_WAITING = "CSA_APPROVAL_WAITING";
+    String PENDING_LOAN_CREATION = "PENDING_LOAN_CREATION";
+
 }
