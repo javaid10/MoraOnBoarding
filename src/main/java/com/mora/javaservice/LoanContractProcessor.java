@@ -170,14 +170,13 @@ public class LoanContractProcessor implements JavaService2 {
                                                                 .parseFloat(jsonSchedule.getJSONArray("body")
                                                                                 .getJSONObject(0)
                                                                                 .optString("taxAmount"));
-                                         
+
                                                 for (int i = 1; i < jsonSchedule.getJSONArray("body").length(); i++) {
                                                         totalInterest = totalInterest
                                                                         + Float.parseFloat(jsonSchedule
                                                                                         .getJSONArray("body")
                                                                                         .getJSONObject(i)
                                                                                         .optString("interestAmount"));
-                                                        
 
                                                         outstandingAmountR.put(
                                                                         jsonSchedule.getJSONArray("body")
@@ -217,9 +216,10 @@ public class LoanContractProcessor implements JavaService2 {
                                                 logger.error("APPID ======" + appId);
                                                 inputContract.put("$loan_reference",
                                                                 UtilServices.checkNullString(appId));
-                                                inputContract.put("$in_day", UtilServices.checkNullString(getArabicDay(dayOfWeek))); // day
-                                                                                                                       // of
-                                                                                                                       // week
+                                                inputContract.put("$in_day",
+                                                                UtilServices.checkNullString(getArabicDay(dayOfWeek))); // day
+                                                // of
+                                                // week
                                                 String nowDate = now.format(dtf);
                                                 String hijDate = islamyDate.format(outputFormatter);
                                                 inputContract.put("$date", UtilServices.checkNullString(nowDate)); // today
@@ -265,7 +265,7 @@ public class LoanContractProcessor implements JavaService2 {
                                                 inputContract.put("$product_typ_one", "Copper");
                                                 inputContract.put("$spacification", "Copper"); // needs change
                                                 inputContract.put("$number_weight", "0.81667");// quantity from nafaes
-                                                                                              // pool
+                                                                                               // pool
                                                 inputContract.put("$product_price", loanAmount);// loan amount
                                                 Float totSellPro = Float.parseFloat(loanAmount) + totalInterest;
                                                 logger.error("TotalInterest Value ====== >>>>>" + totalInterest);
@@ -275,8 +275,9 @@ public class LoanContractProcessor implements JavaService2 {
                                                                 String.valueOf(totSellPro));// total loan
 
                                                 inputContract.put("$percent",
-                                                                " (" + UtilServices.checkNullString(approx) + "%        ) ");// approx
-                                                                                                                    // value
+                                                                " (" + UtilServices.checkNullString(approx)
+                                                                                + "%        ) ");// approx
+                                                // value
                                                 inputContract.put("$percent_two", " (" + UtilServices
                                                                 .checkNullString(calcAdminFees(loanAmount, adminFeesE))
                                                                 + ") ");// admin
@@ -382,12 +383,12 @@ public class LoanContractProcessor implements JavaService2 {
                                                 inputContract.put("$contract_number", appId); // need change Total
                                                                                               // payable (Profit +
                                                 inputContract.put("$amount_saa", "");
-                                                inputContract.put("$iban", UtilServices.checkNullString(sabbNumber)); // need
-                                                                                                                      // change
-                                                                                                                      // Total
-                                                                                                                      // payable
-                                                                                                                      // (Profit
-                                                                                                                      // +
+                                                inputContract.put("$iban1", UtilServices.checkNullString(sabbNumber)); // need
+                                                                                                                       // change
+                                                                                                                       // Total
+                                                                                                                       // payable
+                                                                                                                       // (Profit
+                                                                                                                       // +
                                                 inputContract.put("$due_date_of_first_instalment", firstInstallDate); // first
                                                                                                                       // installment
                                                                                                                       // date
@@ -658,7 +659,7 @@ public class LoanContractProcessor implements JavaService2 {
                         default:
                                 break;
                 }
-                logger.error("Arabic Day ======= >>>>"+dayInAr);
+                logger.error("Arabic Day ======= >>>>" + dayInAr);
                 // copper = نحاس
                 return dayInAr;
         }
