@@ -88,6 +88,7 @@ public interface GenericConstants {
      */
     String LOAN_CREATED = "LOAN_CREATED";
     String STATUS_SUSPEND = "SID_SUSPENDED";
+    String STATUS_INPROGRESS = "IN_PROGRESS";
     String STATUS_CREATED = "LOAN_CREATED";
     String PRO_ACTIVE = "SID_PRO_ACTIVE";
     String SANAD_WAITING = "SANAD_WAITING";
