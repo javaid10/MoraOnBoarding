@@ -85,6 +85,7 @@ public class LoginProspect implements JavaService2 {
                 JSONObject customerApplilcation = new JSONObject(customerApplicationResponse);
                 String applicationStatus = customerApplilcation.getJSONArray("tbl_customerapplication").getJSONObject(0).optString("applicationStatus");
                 String partyId = customerObj.getJSONArray("customer").getJSONObject(0).optString("partyId");
+                String sanadNumber = customerApplilcation.getJSONArray("tbl_customerapplication").getJSONObject(0).optString("sanadNumber");
                 if (applicationStatus.equalsIgnoreCase(GenericConstants.PRO_ACTIVE)) {
                     applicationStatus = getApplicationStatus(customerApplilcation);
                 }
@@ -92,6 +93,10 @@ public class LoginProspect implements JavaService2 {
                     return ErrorCodeMora.ERR_100137.buildResponseForFailedLogin(result);
                      
                 }
+                if (StringUtils.isBlank(sanadNumber)) {
+                    applicationStatus = GenericConstants.PRO_ACTIVE;
+                }
+                
                 userAttrRecord.addParam(new Param("applicationStatus", applicationStatus));
                 
                 // generate session token
