@@ -65,7 +65,7 @@ public class ForgotPassword implements JavaService2 {
                     result = ErrorCodeMora.ERR_100136.updateResultObject(result);
                 }
             } else {
-                result = ErrorCodeMora.ERR_100128.updateResultObject(result);
+                result = ErrorCodeMora.ERR_100136.updateResultObject(result);
             }
         }
         return result;

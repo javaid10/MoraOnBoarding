@@ -120,9 +120,7 @@ public class LoanContractProcessor implements JavaService2 {
 
                                         String scheduleResp = getLoanSimulation(loanSimParams, request);
                                         JSONObject jsonSchedule = new JSONObject(scheduleResp);
-                                        if (jsonSchedule.getJSONArray("body").length() > 0) { // checking if
-                                                                                              // paymentschedule is
-                                                                                              // generated
+                                        if (jsonSchedule.getJSONArray("body").length() > 0) {
                                                 int lengthArr = jsonSchedule.getJSONArray("body").length();
                                                 String sabbNumber = jsonSchedule.getJSONArray("body").getJSONObject(0)
                                                                 .optString("sabbNumber");
@@ -170,14 +168,13 @@ public class LoanContractProcessor implements JavaService2 {
                                                                 .parseFloat(jsonSchedule.getJSONArray("body")
                                                                                 .getJSONObject(0)
                                                                                 .optString("taxAmount"));
-                                         
+
                                                 for (int i = 1; i < jsonSchedule.getJSONArray("body").length(); i++) {
                                                         totalInterest = totalInterest
                                                                         + Float.parseFloat(jsonSchedule
                                                                                         .getJSONArray("body")
                                                                                         .getJSONObject(i)
                                                                                         .optString("interestAmount"));
-                                                        
 
                                                         outstandingAmountR.put(
                                                                         jsonSchedule.getJSONArray("body")
@@ -190,10 +187,9 @@ public class LoanContractProcessor implements JavaService2 {
                                                                         jsonSchedule.getJSONArray("body")
                                                                                         .getJSONObject(i)
                                                                                         .optString("outstandingAmount"));
-                                                        totalAmount
-                                                                        .put(jsonSchedule.getJSONArray("body")
-                                                                                        .getJSONObject(i)
-                                                                                        .optString("totalAmount"));
+                                                        totalAmount.put(jsonSchedule.getJSONArray("body")
+                                                                        .getJSONObject(i)
+                                                                        .optString("totalAmount"));
                                                         interestAmount.put(
                                                                         jsonSchedule.getJSONArray("body")
                                                                                         .getJSONObject(i)
@@ -209,23 +205,35 @@ public class LoanContractProcessor implements JavaService2 {
                                                         months.put(i);
                                                 }
 
+                                                Float loanINt = Float.valueOf(loanAmount) + totalInterest;
+                                                JSONArray outSched = new JSONArray();
+                                                for (int i = 1; i < jsonSchedule.getJSONArray("body").length(); i++) {
+                                                        logger.error("Values herere=======>>>");
+                                                        String totAm = jsonSchedule
+                                                        .getJSONArray("body")
+                                                        .getJSONObject(i)
+                                                        .optString("totalAmount");
+                                                        if(!totAm.isEmpty()){
+                                                                loanINt = loanINt - Float.parseFloat(totAm);
+                                                                outSched.put(loanINt);
+                                                        }else{
+                                                                outSched.put(0.0);
+                                                        }
+                                                        totAm=null;
+                                                        logger.error("Values herere of loanInt=======>>>"+loanINt);
+                                                }       
                                                 Float totalAmt = Float.parseFloat(loanAmount) + totalInterest
-                                                                + chargeAmtF + taxAmtF; // total Amount the custome will
-                                                                                        // pay
+                                                                + chargeAmtF + taxAmtF;
                                                 logger.error("Total Amount caluculated ::::+++>>>" + totalAmt);
 
                                                 logger.error("APPID ======" + appId);
                                                 inputContract.put("$loan_reference",
                                                                 UtilServices.checkNullString(appId));
-                                                inputContract.put("$in_day", UtilServices.checkNullString(getArabicDay(dayOfWeek))); // day
-                                                                                                                       // of
-                                                                                                                       // week
+                                                inputContract.put("$in_day",
+                                                                UtilServices.checkNullString(getArabicDay(dayOfWeek)));
                                                 String nowDate = now.format(dtf);
                                                 String hijDate = islamyDate.format(outputFormatter);
-                                                inputContract.put("$date", UtilServices.checkNullString(nowDate)); // today
-                                                                                                                   // date
-                                                                                                                   // in
-                                                                                                                   // yyyy/mm/dd
+                                                inputContract.put("$date", UtilServices.checkNullString(nowDate));
                                                 inputContract.put("$date_in_hijri", hijDate); // today date in hijri
 
                                                 // inputContract.put("city_api4", "Riyadh");
@@ -237,35 +245,37 @@ public class LoanContractProcessor implements JavaService2 {
                                                                 getCustomerDetails.getJSONArray("customer")
                                                                                 .getJSONObject(0)
                                                                                 .optString("UserName"));
-                                                inputContract.put("$nationality", "المملكة العربية السعودية"); // nationality
-                                                // inputContract.put("$customer_address", "KSA"); // country
-                                                // inputContract.put("$city_api10", "Riyadh"); // city
+                                                inputContract.put("$nationality", "المملكة العربية السعودية");
                                                 inputContract.put("$customer_address", "المملكة العربية السعودية");
                                                 inputContract.put("$city_api10",
                                                                 getAddressDetails.getJSONArray("tbl_address")
                                                                                 .getJSONObject(0)
-                                                                                .optString("cityName")); // city
-                                                inputContract.put("$national_address",
-                                                                getAddressDetails.getJSONArray("tbl_address")
+                                                                                .optString("cityName"));
+
+                                                String fullAddress = getAddressDetails.getJSONArray(
+                                                                "tbl_address")
+                                                                .getJSONObject(0)
+                                                                .optString("addressLine3")
+                                                                + " " + getAddressDetails.getJSONArray(
+                                                                                "tbl_address")
+                                                                                .getJSONObject(0)
+                                                                                .optString("addressLine2")
+                                                                + " " + getAddressDetails.getJSONArray(
+                                                                                "tbl_address")
                                                                                 .getJSONObject(0)
                                                                                 .optString("addressLine1")
-                                                                                + " "
-                                                                                + getAddressDetails.getJSONArray(
-                                                                                                "tbl_address")
-                                                                                                .getJSONObject(0)
-                                                                                                .optString("addressLine2")); // full
-                                                                                                                             // address
-                                                inputContract.put("$phone_number", mobileNumber); // customerPhone
-                                                                                                  // Number
-                                                // inputContract.put("$national_address", "Riyadh");
+                                                                + " " + getAddressDetails.getJSONArray(
+                                                                                "tbl_address")
+                                                                                .getJSONObject(0)
+                                                                                .optString("zipCode");
+                                                inputContract.put("$national_address",
+                                                                fullAddress);
+                                                inputContract.put("$phone_number", mobileNumber);
                                                 inputContract.put("$gentlemen", "Riyadh");
-                                                // inputContract.put("$national_address", "Riyadh");
 
-                                                // gettind details from nafaes order
                                                 inputContract.put("$product_typ_one", "Copper");
                                                 inputContract.put("$spacification", "Copper"); // needs change
                                                 inputContract.put("$number_weight", "0.81667");// quantity from nafaes
-                                                                                              // pool
                                                 inputContract.put("$product_price", loanAmount);// loan amount
                                                 Float totSellPro = Float.parseFloat(loanAmount) + totalInterest;
                                                 logger.error("TotalInterest Value ====== >>>>>" + totalInterest);
@@ -275,16 +285,11 @@ public class LoanContractProcessor implements JavaService2 {
                                                                 String.valueOf(totSellPro));// total loan
 
                                                 inputContract.put("$percent",
-                                                                " (" + UtilServices.checkNullString(approx) + "%        ) ");// approx
-                                                                                                                    // value
+                                                                " (" + UtilServices.checkNullString(approx)
+                                                                                + "% ) ");
                                                 inputContract.put("$percent_two", " (" + UtilServices
                                                                 .checkNullString(calcAdminFees(loanAmount, adminFeesE))
-                                                                + ") ");// admin
-                                                // fees
-                                                // 1%
-                                                // of
-                                                // loanamount
-
+                                                                + ") ");
                                                 inputContract.put("$monthly_installment_amount", emi);// emi
                                                 inputContract.put("$term_cost",
                                                                 UtilServices.checkNullString(
@@ -379,38 +384,27 @@ public class LoanContractProcessor implements JavaService2 {
                                                 Float loanAmtInt = Float.parseFloat(loanAmount) + totalInterest;
                                                 inputContract.put("$total_amount_to_be_paid", UtilServices
                                                                 .checkNullString(String.valueOf(loanAmtInt)));
-                                                inputContract.put("$contract_number", appId); // need change Total
-                                                                                              // payable (Profit +
+                                                inputContract.put("$contract_number", appId);
                                                 inputContract.put("$amount_saa", "");
-                                                inputContract.put("$iban", UtilServices.checkNullString(sabbNumber)); // need
-                                                                                                                      // change
-                                                                                                                      // Total
-                                                                                                                      // payable
-                                                                                                                      // (Profit
-                                                                                                                      // +
-                                                inputContract.put("$due_date_of_first_instalment", firstInstallDate); // first
-                                                                                                                      // installment
-                                                                                                                      // date
-                                                inputContract.put("$due_date_of_last_installment", lastInstallDate); // need
-                                                                                                                     // change
-                                                                                                                     // Last
+                                                inputContract.put("$iban1", UtilServices.checkNullString(sabbNumber));
+                                                inputContract.put("$due_date_of_first_instalment", firstInstallDate);
+                                                inputContract.put("$due_date_of_last_installment", lastInstallDate);
                                                 inputContract.put("$number_of_repament_years",
                                                                 "(" + String.valueOf(tenor) + ")/12");
                                                 inputContract.put("$anuual_precentage_rate_apr", approx);
                                                 inputContract.put("$funding_contract_period", tenor);
-                                                inputContract.put("$number_of_instalment", tenor); // needs changes
-                                                inputContract.put("$amount_of_monthly_installment_sar", emi); // EMI
+                                                inputContract.put("$number_of_instalment", tenor);
+                                                inputContract.put("$amount_of_monthly_installment_sar", emi);
                                                 inputContract.put("$due_date_of_first_installment_one",
                                                                 firstInstallDate);
                                                 inputContract.put("$due_date_of_last_installment_one", lastInstallDate);
                                                 inputContract.put("$additional_note", "");
                                                 inputContract.put("$tawarruq", "TAWARRUQ");
-                                                inputContract.put("$funding_loan_purpose", "PURCHASES");// need change
-                                                inputContract.put("$the_requested_funding_loan_amount", loanAmount); // need
-                                                                                                                     // change
-                                                inputContract.put("$monthly_due_date", firstInstallDate); // need change
+                                                inputContract.put("$funding_loan_purpose", "PURCHASES");
+                                                inputContract.put("$the_requested_funding_loan_amount", loanAmount);
+                                                inputContract.put("$monthly_due_date", firstInstallDate);
 
-                                                inputContract.put("$product_type", "نحاس"); // need change
+                                                inputContract.put("$product_type", "نحاس");
                                                 inputContract.put("$payment_period", emi); // emi
                                                 inputContract.put("$product_spacification", "نحاس"); // need change
                                                 inputContract.put("$e_mail", emailId); // need change
@@ -488,7 +482,7 @@ public class LoanContractProcessor implements JavaService2 {
                                                 JSONObject loanContractJson = new JSONObject(loanContractPayload);
                                                 loanContractJson.put("months", months);
                                                 loanContractJson.put("installment_date", instDates);
-                                                loanContractJson.put("outstanding_amount", interestAmount);
+                                                loanContractJson.put("outstanding_amount", outSched);
                                                 loanContractJson.put("remaining_principal_balance", outstandingAmount);
                                                 loanContractJson.put("total_monthly_amount", totalAmount);
                                                 loanContractJson.put("cost_of_loan", interestAmount);
@@ -658,7 +652,7 @@ public class LoanContractProcessor implements JavaService2 {
                         default:
                                 break;
                 }
-                logger.error("Arabic Day ======= >>>>"+dayInAr);
+                logger.error("Arabic Day ======= >>>>" + dayInAr);
                 // copper = نحاس
                 return dayInAr;
         }

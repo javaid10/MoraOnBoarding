@@ -8,7 +8,6 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-
 import com.dbp.core.error.DBPApplicationException;
 import com.dbp.core.fabric.extn.DBPServiceExecutorBuilder;
 
@@ -30,8 +29,8 @@ public class LoanCreation implements JavaService2 {
         String partyId = "";
         String cusId = "";
         String loanAmt = "";
-        String appId = "";
         String mobileNumber = "";
+        String aid = "";
         if (preProcess(dcRequest, dcResponse, result)) {
 
             String currAppID = getPartyId(dcRequest);
@@ -39,6 +38,8 @@ public class LoanCreation implements JavaService2 {
             if (loanDet.getJSONArray("tbl_customerapplication").length() > 0) {
                 loanAmt = loanDet.getJSONArray("tbl_customerapplication").getJSONObject(0).getString("offerAmount");
                 mobileNumber = loanDet.getJSONArray("tbl_customerapplication").getJSONObject(0).getString("mobile");
+                aid = loanDet.getJSONArray("tbl_customerapplication").getJSONObject(0).getString("id");
+
                 String zero = "0";
                 String phonenum = zero + mobileNumber.substring(3);
                 HashMap<String, Object> map = new HashMap<String, Object>();
@@ -49,17 +50,17 @@ public class LoanCreation implements JavaService2 {
                 String jsonresp = DBPServiceExecutorBuilder.builder().withServiceId("MSDocumentMora")
                         .withOperationId("SanadCreatePython").withRequestParameters(map).build()
                         .getResponse();
-                        String requestJson = new ObjectMapper().writeValueAsString(map);
+                String requestJson = new ObjectMapper().writeValueAsString(map);
 
-                        if (auditLogData(dcRequest, dcResponse, requestJson, jsonresp)) {
-                            result.addParam(new Param("auditLogStatus", "success"));
-                        }else {
-                            result.addParam(new Param("auditLogStatus", "failed"));
-            
-                        }
+                if (auditLogData(dcRequest, dcResponse, requestJson, jsonresp)) {
+                    result.addParam(new Param("auditLogStatus", "success"));
+                } else {
+                    result.addParam(new Param("auditLogStatus", "failed"));
+
+                }
                 JSONObject sanadRespJsonObject = new JSONObject(jsonresp);
                 String sanadNum = sanadRespJsonObject.optString("sanadNumber");
-
+                updateSanadNumber(sanadNum, aid);
                 result.addParam("ResponseCode", ErrorCodeMora.ERR_60000.toString());
                 result.addParam("Message", ErrorCodeMora.ERR_60000.getErrorMessage());
             }
@@ -68,7 +69,17 @@ public class LoanCreation implements JavaService2 {
         return result;
     }
 
-    private static void updateSanadNumber(String sanadNumber) {
+    private static void updateSanadNumber(String sanadNumber, String id) {
+        try {
+            HashMap<String, Object> input = new HashMap<String, Object>();
+            input.put("id", id);
+            input.put("sanadNumber", sanadNumber);
+            String jsonresp = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
+                    .withOperationId("dbxdb_tbl_customerapplication_update").withRequestParameters(input).build()
+                    .getResponse();
+        } catch (Exception e) {
+            logger.error("Error updateSanadNumber ", e);
+        }
 
     }
 
@@ -248,7 +259,6 @@ public class LoanCreation implements JavaService2 {
                 .withOperationId("dbxlogs_auditlog_create").withRequestParameters(logdataRequestMap).build()
                 .getResponse();
 
-      
         if (logResponse != null && logResponse.length() > 0) {
 
             return true;
