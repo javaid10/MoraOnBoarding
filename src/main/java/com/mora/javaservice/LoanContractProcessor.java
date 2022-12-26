@@ -50,6 +50,8 @@ public class LoanContractProcessor implements JavaService2 {
                                                 .optString("currentAppId");
                                 String partyId = getCustomerDetails.getJSONArray("customer").getJSONObject(0)
                                                 .optString("partyId");
+                                String cusIban =  getCustomerDetails.getJSONArray("customer").getJSONObject(0)
+                                .optString("Bank_id");
                                 if (appId != "") {
                                         JSONObject getLoanDetails = new JSONObject(getLoanDetails(appId));
                                         JSONObject getAddressDetails = new JSONObject(
@@ -304,7 +306,7 @@ public class LoanContractProcessor implements JavaService2 {
                                                                 .checkNullString(
                                                                                 calcAdminFees(loanAmount, adminFeesE)));
                                                 inputContract.put("$iban_two",
-                                                                UtilServices.checkNullString(sabbNumber));
+                                                                UtilServices.checkNullString(cusIban));
 
                                                 inputContract.put("$total_amount", loanAmount);// loan amount
                                                 inputContract.put("$monthly_installment_one",
@@ -564,6 +566,9 @@ public class LoanContractProcessor implements JavaService2 {
                 }
 
         }
+
+
+        
 
         @SuppressWarnings("null")
         public String[] getMobileNumber(Result result, DataControllerRequest request, String customerId) {

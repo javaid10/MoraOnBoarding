@@ -61,6 +61,8 @@ public class LoanCreation implements JavaService2 {
                 JSONObject sanadRespJsonObject = new JSONObject(jsonresp);
                 String sanadNum = sanadRespJsonObject.optString("sanadNumber");
                 updateSanadNumber(sanadNum, aid);
+                logger.error("sandNumber =====>>>"+sanadNum);
+
                 result.addParam("ResponseCode", ErrorCodeMora.ERR_60000.toString());
                 result.addParam("Message", ErrorCodeMora.ERR_60000.getErrorMessage());
             }
@@ -74,6 +76,7 @@ public class LoanCreation implements JavaService2 {
             HashMap<String, Object> input = new HashMap<String, Object>();
             input.put("id", id);
             input.put("sanadNumber", sanadNumber);
+            logger.error("sandNumber =====>>>"+sanadNumber);
             String jsonresp = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
                     .withOperationId("dbxdb_tbl_customerapplication_update").withRequestParameters(input).build()
                     .getResponse();
