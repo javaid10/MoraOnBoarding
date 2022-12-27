@@ -57,7 +57,7 @@ public class TriggerOTP implements JavaService2 {
         String message = getMessageBody(otpType, languageType, otp);
         LOG.debug("======> OTP message after processing " + message);
         JSONObject sendSMSResponse = sendSMS(message, recipient);
-        if (sendSMSResponse == null || !StringUtils.equalsIgnoreCase(sendSMSResponse.getString("success"), "success")) {
+        if (sendSMSResponse == null || !StringUtils.equalsIgnoreCase(sendSMSResponse.getString("success"), "true")) {
             return ErrorCodeMora.ERR_100142.updateResultObject(result);
         }
         
@@ -131,7 +131,7 @@ public class TriggerOTP implements JavaService2 {
         } catch (Exception ex) {
             LOG.error("======> Error while Processing the Send SMS", ex);
         }
-        LOG.debug("======> TriggerOTP - sendSMS - Begin");
+        LOG.debug("======> TriggerOTP - sendSMS - End");
         return sendSMSObj;
     }
 
