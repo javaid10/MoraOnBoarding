@@ -57,7 +57,7 @@ public class TriggerOTP implements JavaService2 {
         String message = getMessageBody(otpType, languageType, otp);
         LOG.debug("======> OTP message after processing " + message);
         JSONObject sendSMSResponse = sendSMS(message, recipient);
-        if (sendSMSResponse == null || !StringUtils.equalsIgnoreCase(sendSMSResponse.getString("success"), "true")) {
+        if (sendSMSResponse == null || !sendSMSResponse.getBoolean("success")) {
             return ErrorCodeMora.ERR_100142.updateResultObject(result);
         }
         
@@ -109,7 +109,7 @@ public class TriggerOTP implements JavaService2 {
      */
     private static JSONObject sendSMS(String body, String receipient) {
         LOG.debug("======> TriggerOTP - sendSMS - Begin");
-        JSONObject sendSMSObj = null;
+        JSONObject responseJson = null;
         try {
             String loginURL = "https://el.cloud.unifonic.com/rest/SMS/messages?";
             HashMap<String, String> paramsMap = new HashMap<>();
@@ -126,13 +126,13 @@ public class TriggerOTP implements JavaService2 {
 
             String endPointResponse = HTTPOperations.hitPOSTServiceAndGetResponse(loginURL, paramsMap, null,
                     headersMap);
-            JSONObject responseJson = getStringAsJSONObject(endPointResponse);
+            responseJson = getStringAsJSONObject(endPointResponse);
             LOG.debug("==========> responseJson :: " + responseJson);
         } catch (Exception ex) {
             LOG.error("======> Error while Processing the Send SMS", ex);
         }
         LOG.debug("======> TriggerOTP - sendSMS - End");
-        return sendSMSObj;
+        return responseJson;
     }
 
     /**
