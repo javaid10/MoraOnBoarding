@@ -52,7 +52,11 @@ public enum ErrorCodeMora {
     ERR_100132(100132, "Failed to GET PAYMEN SCHEDULE"),
     ERR_100136(100136, "Mobile Verification Failed"),
     ERR_100137(100137, "Your registration is not completed.\nPlease try again later."),
-    ERR_100138(100138, "Nafaes SO failed to Process");
+    ERR_100138(100138, "Nafaes SO failed to Process"),
+    ERR_100139(100139, "Fail to generate the OTP"),
+    ERR_100140(100140, "OTP Type is missing from the request"),
+    ERR_100141(100141, "Recipient is missing from the request"),
+    ERR_100142(100142, "OTP Request Failed to Process");
 
 
     private int errCode;
