@@ -8,7 +8,6 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
-import java.util.UUID;
 
 import com.dbp.core.error.DBPApplicationException;
 import com.dbp.core.fabric.extn.DBPServiceExecutorBuilder;
@@ -39,10 +38,16 @@ public class NafaesPO implements JavaService2 {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
         String yyyyMMdd = sdf.format(date);
 
+        String nationalId = request.getParameter("nationalId");
         JSONObject JsonResponse = null;
         HashMap<String, Object> requestParam = new HashMap();
         try {
             if (preprocess(request, result)) {
+                String customerResponse = getCustomerDetails(nationalId);
+                JSONObject customerObj = new JSONObject(customerResponse);
+                String arabicFullName = customerObj.getJSONArray("customer").getJSONObject(0).getString("ArFullName");
+                String loanApplicationNumber = customerObj.getJSONArray("customer").getJSONObject(0).getString("UserName");
+                
                 requestParam.put("commodityCode",
                         EnvironmentConfigurationsMora.NAFAES_COMMODITY_CODE.getValue() != null
                                 ? EnvironmentConfigurationsMora.NAFAES_COMMODITY_CODE.getValue()
@@ -52,12 +57,12 @@ public class NafaesPO implements JavaService2 {
                                 ? EnvironmentConfigurationsMora.PURCHASER_BANK.getValue()
                                 : "");
                 requestParam.put("valueDate", yyyyMMdd);
-                requestParam.put("counterPartyAccount", "123456"); // loan application number
+                requestParam.put("counterPartyAccount", ""); // loan application number
                 requestParam.put("currency",
                         EnvironmentConfigurationsMora.CURRENCY_CODE.getValue() != null
                                 ? EnvironmentConfigurationsMora.CURRENCY_CODE.getValue()
                                 : "");
-                requestParam.put("counterPartyName", "ABCD"); // customer arabic name
+                requestParam.put("counterPartyName", arabicFullName); // customer arabic name
                 requestParam.put("transactionType",
                         EnvironmentConfigurationsMora.NAFAES_TRANSACTION_TYPE.getValue() != null
                                 ? EnvironmentConfigurationsMora.NAFAES_TRANSACTION_TYPE.getValue()
@@ -122,6 +127,17 @@ public class NafaesPO implements JavaService2 {
         return result;
     }
 
+    
+    private String getCustomerDetails(String nationalId) throws DBPApplicationException {
+        HashMap<String, Object> inputParams = new HashMap<String, Object>();
+        inputParams.put("$filter", "UserName eq " + nationalId);
+        String customerResponse = DBPServiceExecutorBuilder.builder().withServiceId("DBXDBServices")
+                .withOperationId("dbxdb_customer_get").withRequestParameters(inputParams).build().getResponse();
+        logger.debug("======> Customer Response " +customerResponse);
+
+        return customerResponse;
+}
+    
     public boolean preprocess(DataControllerRequest request, Result result) {
         boolean flag = false;
         // java function to get accesstoken from oauth provider

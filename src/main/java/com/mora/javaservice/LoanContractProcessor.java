@@ -14,6 +14,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
@@ -24,7 +25,12 @@ import com.dbp.core.fabric.extn.DBPServiceExecutorBuilder;
 import com.konylabs.middleware.common.JavaService2;
 import com.konylabs.middleware.controller.DataControllerRequest;
 import com.konylabs.middleware.controller.DataControllerResponse;
+import com.konylabs.middleware.dataobject.Dataset;
+import com.konylabs.middleware.dataobject.JSONToResult;
+import com.konylabs.middleware.dataobject.Param;
+import com.konylabs.middleware.dataobject.Record;
 import com.konylabs.middleware.dataobject.Result;
+import com.konylabs.middleware.dataobject.ResultToJSON;
 import com.mora.constants.GenericConstants;
 import com.mora.util.EnvironmentConfigurationsMora;
 import com.mora.util.ErrorCodeMora;
@@ -124,18 +130,12 @@ public class LoanContractProcessor implements JavaService2 {
                                         JSONObject jsonSchedule = new JSONObject(scheduleResp);
                                         if (jsonSchedule.getJSONArray("body").length() > 0) {
                                                 int lengthArr = jsonSchedule.getJSONArray("body").length();
-                                                String sabbNumber = jsonSchedule.getJSONArray("body").getJSONObject(0)
-                                                                .optString("sabbNumber");
-                                                String sadadNumber = jsonSchedule.getJSONArray("body").getJSONObject(0)
-                                                                .optString("sadadNumber");
-
                                                 String emi = jsonSchedule.getJSONArray("body").getJSONObject(1)
                                                                 .optString("totalAmount");
-                                                String resSaab = updateSaadSabb(
-                                                                getLoanDetails.getJSONArray("tbl_customerapplication")
-                                                                                .getJSONObject(0)
-                                                                                .optString("id"),
-                                                                sabbNumber, sadadNumber);
+                                                String sabbNumber = jsonSchedule.getJSONArray("body").getJSONObject(0).optString("sabbNumber");
+                                                String sadadNumber = jsonSchedule.getJSONArray("body").getJSONObject(0).optString("sadadNumber");
+                                                String effectiveDate = jsonSchedule.getJSONArray("body").getJSONObject(0).optString("effectiveDate");
+                                                String resSaab = updateSaadSabb(getLoanDetails.getJSONArray("tbl_customerapplication").getJSONObject(0).optString("id"),sabbNumber, sadadNumber, effectiveDate);
                                                 logger.error("Update Saab and sadad number" + resSaab);
                                                 JSONArray instDates = new JSONArray();
                                                 JSONArray months = new JSONArray();
@@ -609,23 +609,47 @@ public class LoanContractProcessor implements JavaService2 {
                 return resVal;
         }
 
-        private String updateSaadSabb(String loanTabId, String saab, String sadad) {
+        private String updateSaadSabb(String loanTabId, String saab, String sadad, String effectiveDate) {
 
-                HashMap<String, Object> inpParams = new HashMap();
-                inpParams.put("id", loanTabId);
+            HashMap<String, Object> inpParams = new HashMap();
+            inpParams.put("id", loanTabId);
 
-                inpParams.put("sabbNumber", saab);
-                inpParams.put("sadadNumber", sadad);
-                try {
-                        String resp = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
-                                        .withOperationId("dbxdb_tbl_customerapplication_update")
-                                        .withRequestParameters(inpParams).build()
-                                        .getResponse();
-                } catch (DBPApplicationException e) {
-                        e.printStackTrace();
-                }
+            inpParams.put("sabbNumber", saab);
+            inpParams.put("sadadNumber", sadad);
+            inpParams.put("effectiveDate", effectiveDate);
+            try {
+                String resp = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
+                        .withOperationId("dbxdb_tbl_customerapplication_update").withRequestParameters(inpParams).build()
+                        .getResponse();
+            } catch (DBPApplicationException e) {
+                e.printStackTrace();
+            }
 
-                return null;
+            return null;
+        }
+        
+        public static void main(String[] args) {
+            // String s = "{\"activeTermsNConditionContents\":[{\"termsNConditionContentId\":\"TCC22362VSAD2\",\"termConditionAppsId\":\"TCA2312363\",\"termConditionCodeId\":\"TE1920033\",\"appId\":\"ORIGINATION\",\"language\":\"ar-AR\",\"versionNo\":\"1.0\",\"description\":\"Product Dasboard disclaimer\",\"content\":\"<p><strong>شروط</strong><strong> </strong><strong>وأحكام</strong><strong> </strong>ها في بعض الحالات و سيتم الإشارة إليها بشكل إضافي في قسم آخـر.</p>\\n\\n<p>&nbsp;</p>\\n\\n<p>&nbsp;</p>\\n\\n<p>&nbsp;</p>\\n\\n<p>&nbsp;</p>\\n\\n<p><strong>البريد</strong><strong> </strong><strong>الإلكتروني</strong><strong> </strong><strong>على</strong><strong> </strong><strong>الإنترنت</strong></p>\\n\\n<p>يتوجب عدم استخدام البريد الإلكتروني العادي لتوصيل معلومات شخصية أو سرية لنا بل يجب استخدام الخادم&nbsp;(server)&nbsp;الآمن المتوفر حيث أن رسائل البريد الإلكتروني العادي المرسلة عبر شبكة الإنترنت قد يتم اعتراضها أو فقدانها أو تعديلها وإننا غير مسئولين عنها كما أننا غير ملزمين تجاهكم أو أي شخص أخر عن أي أضرار تتعلق بأية رسائل مرسلة لنا من قبلكم باستخدام البريد الإلكتروني العادي.</p>\\n\\n<p><strong>طرق</strong><strong> </strong><strong>التواصل</strong></p>\\n\\n<p><strong>اتصل</strong><strong> </strong><strong>بنا</strong><br />\\nللتواصل معنا، نرجو منك الاتصال بالهاتف على</p>\\n\\n<p>+966 920033800 (من داخل المملكة العربية السعودية).</p>\\n\\n<p><strong>القانون</strong><strong> </strong><strong>المعتمد</strong></p>\\n\\n<p>تخضع الشروط الواردة في هذه الوثيقه للاشعارات / الإرشادات الصادرة من البنك المركزي السعودي من وقت إلى آخر.</p>\\n\",\"contentType\":\"TEXT\",\"status\":\"ACTIVE\",\"lastModifiedDate\":\"2022-12-28 07:26:44\"},{\"termsNConditionContentId\":\"TCC3450033\",\"termConditionAppsId\":\"TCA2312363\",\"termConditionCodeId\":\"TE1920033\",\"appId\":\"ORIGINATION\",\"language\":\"en-US\",\"versionNo\":\"1.0\",\"description\":\"Product Dasboard disclaimer\",\"content\":\"<p><strong>Terms  law established from The Saudi Central Bank (SAMA).&nbsp;</p>\\n\",\"contentType\":\"TEXT\",\"status\":\"ACTIVE\",\"lastModifiedDate\":\"2021-03-25 12:00:00\"}]}";
+            String s = "{\"activeTermsNConditionContents\":[{\"termsNConditionContentId\":\"TCC3450033\",\"lastModifiedDate\":\"2021-03-25 12:00:00\",\"termConditionCodeId\":\"TE1920033\",\"termConditionAppsId\":\"TCA2312363\",\"appId\":\"ORIGINATION\",\"versionNo\":\"1.0\",\"description\":\"Product Dasboard disclaimer\",\"language\":\"en-US\",\"contentType\":\"TEXT\",\"content\":\"<p><strong>Terms  law established from The Saudi Central Bank (SAMA).&nbsp;<\\/p>\\n\",\"status\":\"ACTIVE\"},{\"termsNConditionContentId\":\"TCC22362VSAD2\",\"lastModifiedDate\":\"2022-12-28 07:26:44\",\"termConditionCodeId\":\"TE1920033\",\"termConditionAppsId\":\"TCA2312363\",\"appId\":\"ORIGINATION\",\"versionNo\":\"1.0\",\"description\":\"Product Dasboard disclaimer\",\"language\":\"ar-AR\",\"contentType\":\"TEXT\",\"content\":\"<p><strong>شروط<\\/strong><strong> <\\/strong><strong>وأحكام<\\/strong><strong> <\\/strong>ها في بعض الحالات و سيتم الإشارة إليها بشكل إضافي في قسم آخـر.<\\/p>\\n\\n<p>&nbsp;<\\/p>\\n\\n<p>&nbsp;<\\/p>\\n\\n<p>&nbsp;<\\/p>\\n\\n<p>&nbsp;<\\/p>\\n\\n<p><strong>البريد<\\/strong><strong> <\\/strong><strong>الإلكتروني<\\/strong><strong> <\\/strong><strong>على<\\/strong><strong> <\\/strong><strong>الإنترنت<\\/strong><\\/p>\\n\\n<p>يتوجب عدم استخدام البريد الإلكتروني العادي لتوصيل معلومات شخصية أو سرية لنا بل يجب استخدام الخادم&nbsp;(server)&nbsp;الآمن المتوفر حيث أن رسائل البريد الإلكتروني العادي المرسلة عبر شبكة الإنترنت قد يتم اعتراضها أو فقدانها أو تعديلها وإننا غير مسئولين عنها كما أننا غير ملزمين تجاهكم أو أي شخص أخر عن أي أضرار تتعلق بأية رسائل مرسلة لنا من قبلكم باستخدام البريد الإلكتروني العادي.<\\/p>\\n\\n<p><strong>طرق<\\/strong><strong> <\\/strong><strong>التواصل<\\/strong><\\/p>\\n\\n<p><strong>اتصل<\\/strong><strong> <\\/strong><strong>بنا<\\/strong><br />\\nللتواصل معنا، نرجو منك الاتصال بالهاتف على<\\/p>\\n\\n<p>+966 920033800 (من داخل المملكة العربية السعودية).<\\/p>\\n\\n<p><strong>القانون<\\/strong><strong> <\\/strong><strong>المعتمد<\\/strong><\\/p>\\n\\n<p>تخضع الشروط الواردة في هذه الوثيقه للاشعارات / الإرشادات الصادرة من البنك المركزي السعودي من وقت إلى آخر.<\\/p>\\n\",\"status\":\"ACTIVE\"}]}";
+            JSONObject json = new JSONObject(s);
+            Result result = JSONToResult.convert(s);
+            Result newResult = new Result();
+            
+            Dataset newDs = new Dataset("activeTermsNConditionContents");
+            String lang = result.getDatasetById("activeTermsNConditionContents").getAllRecords().get(0).getParam("language").getValue();
+            System.out.println(result.getDatasetById("activeTermsNConditionContents").getAllRecords().get(0).toString());
+            if (StringUtils.equalsIgnoreCase(lang, "en-US")) {
+                newDs.addRecord(result.getDatasetById("activeTermsNConditionContents").getAllRecords().get(0));
+                newDs.addRecord(result.getDatasetById("activeTermsNConditionContents").getAllRecords().get(1));
+            } else {
+                newDs.addRecord(result.getDatasetById("activeTermsNConditionContents").getAllRecords().get(1));
+                newDs.addRecord(result.getDatasetById("activeTermsNConditionContents").getAllRecords().get(0));
+            }
+            newResult.addDataset(newDs);
+            newResult.addParam(new Param("opstatus", "0", "int"));
+            newResult.addParam(new Param("httpStatusCode", "200", "int"));
+            System.out.println(ResultToJSON.convert(newResult));
+            
         }
 
         private String getArabicDay(String day) {
