@@ -46,8 +46,9 @@ public class NafaesPO implements JavaService2 {
                 String customerResponse = getCustomerDetails(nationalId);
                 JSONObject customerObj = new JSONObject(customerResponse);
                 String arabicFullName = customerObj.getJSONArray("customer").getJSONObject(0).getString("ArFullName");
-                String loanApplicationNumber = customerObj.getJSONArray("customer").getJSONObject(0).getString("UserName");
-                
+                String loanApplicationNumber = customerObj.getJSONArray("customer").getJSONObject(0)
+                        .getString("UserName");
+                String applicationId = customerObj.getJSONArray("customer").getJSONObject(0).getString("currentAppId");
                 requestParam.put("commodityCode",
                         EnvironmentConfigurationsMora.NAFAES_COMMODITY_CODE.getValue() != null
                                 ? EnvironmentConfigurationsMora.NAFAES_COMMODITY_CODE.getValue()
@@ -57,7 +58,7 @@ public class NafaesPO implements JavaService2 {
                                 ? EnvironmentConfigurationsMora.PURCHASER_BANK.getValue()
                                 : "");
                 requestParam.put("valueDate", yyyyMMdd);
-                requestParam.put("counterPartyAccount", ""); // loan application number
+                requestParam.put("counterPartyAccount", applicationId); // loan application number
                 requestParam.put("currency",
                         EnvironmentConfigurationsMora.CURRENCY_CODE.getValue() != null
                                 ? EnvironmentConfigurationsMora.CURRENCY_CODE.getValue()
@@ -127,17 +128,16 @@ public class NafaesPO implements JavaService2 {
         return result;
     }
 
-    
     private String getCustomerDetails(String nationalId) throws DBPApplicationException {
         HashMap<String, Object> inputParams = new HashMap<String, Object>();
         inputParams.put("$filter", "UserName eq " + nationalId);
         String customerResponse = DBPServiceExecutorBuilder.builder().withServiceId("DBXDBServices")
                 .withOperationId("dbxdb_customer_get").withRequestParameters(inputParams).build().getResponse();
-        logger.debug("======> Customer Response " +customerResponse);
+        logger.debug("======> Customer Response " + customerResponse);
 
         return customerResponse;
-}
-    
+    }
+
     public boolean preprocess(DataControllerRequest request, Result result) {
         boolean flag = false;
         // java function to get accesstoken from oauth provider
@@ -149,12 +149,12 @@ public class NafaesPO implements JavaService2 {
             result = ErrorCodeMora.ERR_100118.updateResultObject(result);
         } else {
             // if (getMarketStatus(request, result)) {
-                if (request.getParameter("purchaseAmount").toString().equals("")) {
+            if (request.getParameter("purchaseAmount").toString().equals("")) {
 
-                    result = ErrorCodeMora.ERR_100105.updateResultObject(result);
-                } else {
-                    flag = true;
-                }
+                result = ErrorCodeMora.ERR_100105.updateResultObject(result);
+            } else {
+                flag = true;
+            }
             // }
         }
         return flag;
