@@ -25,7 +25,7 @@ public class GetDocument implements JavaService2 {
     @SuppressWarnings("unchecked")
     public Object invoke(String methodId, Object[] inputArray, DataControllerRequest dcRequest,
             DataControllerResponse dcResponse) throws Exception {
-        logger.debug("======> GetDocument - Begin");
+            logger.debug("======> GetDocument - Begin");
         Result result = new Result();
         Map<String, String> inputParams = (Map<String, String>) inputArray[1];
         logger.debug("======> Application Id " + inputParams.get("appId"));
@@ -41,7 +41,7 @@ public class GetDocument implements JavaService2 {
         String document = documentObj.getJSONArray("document_storage").getJSONObject(0).getString("loan_contract");
         
         ErrorCodeMora.ERR_60000.updateResultObject(result);
-        result.addParam(new Param("contractDoc", document));
+        result.addParam(new Param("loanContract", document));
         logger.debug("======> GetDocument - End");
         return result;
     }
