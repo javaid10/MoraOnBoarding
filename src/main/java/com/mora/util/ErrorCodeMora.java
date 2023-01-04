@@ -56,7 +56,9 @@ public enum ErrorCodeMora {
     ERR_100139(100139, "Fail to generate the OTP"),
     ERR_100140(100140, "OTP Type is missing from the request"),
     ERR_100141(100141, "Recipient is missing from the request"),
-    ERR_100142(100142, "OTP Request Failed to Process");
+    ERR_100142(100142, "OTP Request Failed to Process"),
+    ERR_100143(100143, "Failed to get the Loan Contract Document"),
+    ERR_100144(100144, "Application Id invalid or no Matching document found");
 
 
     private int errCode;
