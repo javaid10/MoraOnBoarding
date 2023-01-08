@@ -63,7 +63,9 @@ public class NafaesPO implements JavaService2 {
                         EnvironmentConfigurationsMora.CURRENCY_CODE.getValue() != null
                                 ? EnvironmentConfigurationsMora.CURRENCY_CODE.getValue()
                                 : "");
-                requestParam.put("counterPartyName", arabicFullName); // customer arabic name
+                // Commit on 06/01/2023 Change arabic name into application id 
+                requestParam.put("counterPartyName", applicationId);
+               // requestParam.put("counterPartyName", arabicFullName); // customer arabic name
                 requestParam.put("transactionType",
                         EnvironmentConfigurationsMora.NAFAES_TRANSACTION_TYPE.getValue() != null
                                 ? EnvironmentConfigurationsMora.NAFAES_TRANSACTION_TYPE.getValue()
