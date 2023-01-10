@@ -53,6 +53,8 @@ public class EmdhaSign implements JavaService2 {
                     Map<String, String> customerCommunication = getEmailAndMobileNumber(result, dcRequest, customerId);
 
                     params.put("mobile",customerCommunication.get("mobileNumber"));
+                    params.put("email",customerCommunication.get("email"));
+
                     params.put("kycId", natid);
                     try {
                         address = customDetails.getJSONArray("records").getJSONObject(0).optString("addressLine1");
