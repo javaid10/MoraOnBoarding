@@ -27,7 +27,7 @@ import com.mora.util.HTTPOperations;
 
 public class NafaesSO implements JavaService2 {
     private static final Logger LOG = LogManager.getLogger(NafaesSO.class);
-    private static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
+    private static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd'T'HH:mm:ss";
 
     @Override
     public Object invoke(String methodId, Object[] inputArray, DataControllerRequest request,
@@ -101,14 +101,14 @@ public class NafaesSO implements JavaService2 {
             Map<String, Object> inputParams = new HashMap<>();
             StringBuilder filter = new StringBuilder();
             filter.append("purchaseorder eq 1").append(" and ");
-            filter.append("sellorder eq 0").append(" and ");
-            filter.append("transferorder eq 0").append(" and ");
+            filter.append("sellorder eq null").append(" and ");
+            filter.append("transferorder eq null").append(" and ");
             filter.append("createdts gt ").append(get22HoursBeforeCurrentDate()).append(" and ");
             filter.append("createdts lt ").append(getCurrentDate());
             LOG.debug("======> Nafaes - Filter - " + filter);
             inputParams.put("$filter", filter.toString());
             String nafaesData = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
-                    .withOperationId("nafaes_get").withRequestParameters(inputParams).build()
+                    .withOperationId("dbxdb_nafaes_get").withRequestParameters(inputParams).build()
                     .getResponse();
             LOG.debug("======> NafaesSO - nafaesData " + nafaesData);
             nafaesObj = new JSONObject(nafaesData);
@@ -129,7 +129,7 @@ public class NafaesSO implements JavaService2 {
             Map<String, Object> inputParams = new HashMap<>();
             inputParams.put("$filter", "applicationID eq " + nafaesApplicationId);
             String customerApplicationData = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
-                    .withOperationId("tbl_customerapplication_get").withRequestParameters(inputParams).build()
+                    .withOperationId("dbxdb_tbl_customerapplication_get").withRequestParameters(inputParams).build()
                     .getResponse();
             LOG.debug("======> NafaesSO -Customer Application Data: " + customerApplicationData);
             JSONObject customerApplicationObj = new JSONObject(customerApplicationData);
@@ -150,11 +150,12 @@ public class NafaesSO implements JavaService2 {
     private void updateCustomerApplicationData(String customerApplicationId) {
         String customerApplicationResponse = null;
         try {
+            LOG.debug("======> NafaesSO updateCustomerApplicationData " + customerApplicationId);
             Map<String, Object> inputParams = new HashMap<>();
             inputParams.put("id", customerApplicationId);
             inputParams.put("applicationStatus", "SID_SUSPENDED");
             customerApplicationResponse = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
-                    .withOperationId("tbl_customerapplication_update").withRequestParameters(inputParams).build()
+                    .withOperationId("dbxdb_tbl_customerapplication_update").withRequestParameters(inputParams).build()
                     .getResponse();
         } catch (DBPApplicationException e) {
             LOG.debug("======> Error while processing the customer application update");
