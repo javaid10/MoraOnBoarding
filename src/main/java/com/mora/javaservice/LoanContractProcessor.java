@@ -244,8 +244,10 @@ public class LoanContractProcessor implements JavaService2 {
                         String hijDate = islamyDate.format(outputFormatter);
                         inputContract.put("$date", UtilServices.checkNullString(nowDate));
                         inputContract.put("$date_in_hijri", hijDate); // today date in hijri
-
-                        // inputContract.put("city_api4", "Riyadh");
+                        inputContract.put("$done", UtilServices.checkNullString(nowDate)); 
+                        inputContract.put("$donehij", hijDate);
+                        inputContract.put("$dtwo", UtilServices.checkNullString(nowDate)); 
+                        inputContract.put("$dtwohij",hijDate);
                         inputContract.put("$mr_mrs",
                                 getCustomerDetails.getJSONArray("customer")
                                         .getJSONObject(0)
@@ -371,6 +373,8 @@ public class LoanContractProcessor implements JavaService2 {
                                         .getJSONObject(0)
                                         .optString("ArFullName"));
                         inputContract.put("$date_two", nowDate);
+                      
+
                         inputContract.put("$civil_registery_number",
                                 getCustomerDetails.getJSONArray("customer")
                                         .getJSONObject(0)
@@ -455,6 +459,7 @@ public class LoanContractProcessor implements JavaService2 {
                         inputContract.put("$sale_service_expense_inclusive_tax",
                                 UtilServices.checkNullString(
                                         String.valueOf(nafaesVat)));
+                                      
 
                         inputContract.put("$basic_salary", "لا ينطبق"); // need change
                         inputContract.put("$customer_name_one",
