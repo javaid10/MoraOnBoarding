@@ -632,10 +632,12 @@ public class LoanContractProcessor implements JavaService2 {
 
                 HashMap<String, Object> inpParams = new HashMap();
                 inpParams.put("id", loanTabId);
-
                 inpParams.put("sabbNumber", saab);
                 inpParams.put("sadadNumber", sadad);
                 inpParams.put("loanProfitAmount",totalProfit);
+                logger.error("Total Profit amount===="+totalProfit);
+
+                logger.error("Input params for update sanad===="+inpParams);
 
                 try {
                         String resp = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
