@@ -295,7 +295,7 @@ public class LoanContractProcessor implements JavaService2 {
                         // add nafaesPO order result quantity
 
                         if (!nafaesData.optString("status").equalsIgnoreCase("success")) {
-                            result = ErrorCodeMora.ERR_100132.updateResultObject(result);
+                            result = ErrorCodeMora.ERR_100145.updateResultObject(result);
                             return result;
                         }
                         String nafQuantity = "";
