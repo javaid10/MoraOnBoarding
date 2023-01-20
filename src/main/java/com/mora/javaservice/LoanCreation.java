@@ -31,12 +31,15 @@ public class LoanCreation implements JavaService2 {
         String loanAmt = "";
         String mobileNumber = "";
         String aid = "";
+        String profitAmount = "";
         if (preProcess(dcRequest, dcResponse, result)) {
 
             String currAppID = getPartyId(dcRequest);
             JSONObject loanDet = getLoanDetails(currAppID);
             if (loanDet.getJSONArray("tbl_customerapplication").length() > 0) {
                 loanAmt = loanDet.getJSONArray("tbl_customerapplication").getJSONObject(0).getString("offerAmount");
+                profitAmount = loanDet.getJSONArray("tbl_customerapplication").getJSONObject(0)
+                        .getString("loanProfitAmount");
                 mobileNumber = loanDet.getJSONArray("tbl_customerapplication").getJSONObject(0).getString("mobile");
                 aid = loanDet.getJSONArray("tbl_customerapplication").getJSONObject(0).getString("id");
 
@@ -44,7 +47,7 @@ public class LoanCreation implements JavaService2 {
                 String phonenum = zero + mobileNumber.substring(3);
                 HashMap<String, Object> map = new HashMap<String, Object>();
                 map.put("debtor_phone_number", phonenum);
-                map.put("total_value", loanAmt);
+                map.put("total_value", calculateTotalLoanAmount(loanAmt,profitAmount));
                 map.put("reference_id", currAppID);
                 map.put("national_id", dcRequest.getParameter("nationalId"));
                 String jsonresp = DBPServiceExecutorBuilder.builder().withServiceId("MSDocumentMora")
@@ -61,7 +64,7 @@ public class LoanCreation implements JavaService2 {
                 JSONObject sanadRespJsonObject = new JSONObject(jsonresp);
                 String sanadNum = sanadRespJsonObject.optString("sanadNumber");
                 updateSanadNumber(sanadNum, aid);
-                logger.error("sandNumber =====>>>"+sanadNum);
+                logger.error("sandNumber =====>>>" + sanadNum);
 
                 result.addParam("ResponseCode", ErrorCodeMora.ERR_60000.toString());
                 result.addParam("Message", ErrorCodeMora.ERR_60000.getErrorMessage());
@@ -71,12 +74,28 @@ public class LoanCreation implements JavaService2 {
         return result;
     }
 
+    private String calculateTotalLoanAmount(String offerAmount, String profitAmount) {
+
+        String totalAmount = "";
+        try {
+            Float ofAmt = Float.parseFloat(offerAmount);
+            Float proAmt = Float.parseFloat(profitAmount);
+            Float totAmt = ofAmt + proAmt;
+
+            totalAmount = Float.toString(totAmt);
+        } catch (Exception e) {
+            logger.error("Exception in calculateTotalLoanAmount:::", e);
+        }
+
+        return totalAmount;
+    }
+
     private static void updateSanadNumber(String sanadNumber, String id) {
         try {
             HashMap<String, Object> input = new HashMap<String, Object>();
             input.put("id", id);
             input.put("sanadNumber", sanadNumber);
-            logger.error("sandNumber =====>>>"+sanadNumber);
+            logger.error("sandNumber =====>>>" + sanadNumber);
             String jsonresp = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
                     .withOperationId("dbxdb_tbl_customerapplication_update").withRequestParameters(input).build()
                     .getResponse();

@@ -139,11 +139,6 @@ public class LoanContractProcessor implements JavaService2 {
                                                 String sadadNumber = jsonSchedule.getJSONArray("body").getJSONObject(0)
                                                                 .optString("sadadNumber");
 
-                                                String resSaab = updateSaadSabb(
-                                                                getLoanDetails.getJSONArray("tbl_customerapplication")
-                                                                                .getJSONObject(0).optString("id"),
-                                                                sabbNumber, sadadNumber);
-                                                logger.error("Update Saab and sadad number" + resSaab);
                                                 JSONArray instDates = new JSONArray();
                                                 JSONArray months = new JSONArray();
                                                 JSONArray outstandingAmountR = new JSONArray();
@@ -453,7 +448,7 @@ public class LoanContractProcessor implements JavaService2 {
                                                                 .checkNullString(
                                                                                 calcAdminFees(loanAmount, adminFeesE)));
                                                 inputContract.put("$employer", "لا ينطبق"); // need change
-                                                inputContract.put("$city_three", "لا ينطبق"); 
+                                                inputContract.put("$city_three", "لا ينطبق");
                                                 inputContract.put("$job_title", "لا ينطبق"); // need change
                                                 inputContract.put("$expenses_solidarity", "لا ينطبق");
                                                 inputContract.put("$fiduciary_obligations", "لا ينطبق");
@@ -493,7 +488,11 @@ public class LoanContractProcessor implements JavaService2 {
                                                                                 inputContract);
                                                 logger.error("======> Loan Contract Payload = 1 "
                                                                 + loanContractPayload);
-
+                                                String resSaab = updateSaadSabb(
+                                                                getLoanDetails.getJSONArray("tbl_customerapplication")
+                                                                                .getJSONObject(0).optString("id"),
+                                                                sabbNumber, sadadNumber , Float.toString(totalInterest));
+                                                logger.error("Update Saab and sadad number" + resSaab);
                                                 JSONObject loanContractJson = new JSONObject(loanContractPayload);
                                                 loanContractJson.put("months", months);
                                                 loanContractJson.put("installment_date", instDates);
@@ -532,6 +531,7 @@ public class LoanContractProcessor implements JavaService2 {
                                                                                                 "dbxdb_document_storage_create")
                                                                                 .withRequestParameters(inputMap)
                                                                                 .build().getResponse();
+
                                                         } catch (Exception e) {
                                                                 logger.error("Error in updating into document_storage tbale"
                                                                                 + e);
@@ -628,13 +628,15 @@ public class LoanContractProcessor implements JavaService2 {
                 return resVal;
         }
 
-        private String updateSaadSabb(String loanTabId, String saab, String sadad) {
+        private String updateSaadSabb(String loanTabId, String saab, String sadad , String totalProfit) {
 
                 HashMap<String, Object> inpParams = new HashMap();
                 inpParams.put("id", loanTabId);
 
                 inpParams.put("sabbNumber", saab);
                 inpParams.put("sadadNumber", sadad);
+                inpParams.put("loanProfitAmount",totalProfit);
+
                 try {
                         String resp = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
                                         .withOperationId("dbxdb_tbl_customerapplication_update")
