@@ -433,7 +433,11 @@ public class LoanContractProcessor implements JavaService2 {
                         inputContract.put("$the_requested_funding_loan_amount", loanAmount);
                         inputContract.put("$monthly_due_date", firstInstallDate);
 
-                        inputContract.put("$product_type", "نحاس");
+                        //21/021/2023 product commodity code change
+                        //inputContract.put("$product_type", "نحاس");
+                        inputContract.put("$product_type", "حديد تسليح - سابك");
+                        
+                        
                         inputContract.put("$payment_period", emi); // emi
                         inputContract.put("$product_spacification", "نحاس"); // need change
                         inputContract.put("$e_mail", emailId); // need change

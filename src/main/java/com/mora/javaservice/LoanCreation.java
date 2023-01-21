@@ -82,7 +82,10 @@ public class LoanCreation implements JavaService2 {
             Float proAmt = Float.parseFloat(profitAmount);
             Float totAmt = ofAmt + proAmt;
 
-            totalAmount = Float.toString(totAmt);
+            
+            totalAmount = String.valueOf((Math.round(totAmt * 100.0) / 100.0));
+            
+            //totalAmount = Float.toString(totAmt);
         } catch (Exception e) {
             logger.error("Exception in calculateTotalLoanAmount:::", e);
         }
