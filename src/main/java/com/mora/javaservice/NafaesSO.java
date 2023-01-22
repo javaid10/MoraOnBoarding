@@ -22,6 +22,7 @@ import com.konylabs.middleware.common.JavaService2;
 import com.konylabs.middleware.controller.DataControllerRequest;
 import com.konylabs.middleware.controller.DataControllerResponse;
 import com.konylabs.middleware.dataobject.Result;
+import com.mora.util.EnvironmentConfigurationsMora;
 import com.mora.util.ErrorCodeMora;
 import com.mora.util.HTTPOperations;
 
@@ -42,7 +43,7 @@ public class NafaesSO implements JavaService2 {
 
         for (Object nafaesObj : nafaesData.getJSONArray("nafaes")) {
             JSONObject nafaes = (JSONObject) nafaesObj;
-            JSONObject saleOrderobj = callSaleOrder(nafaes);
+            JSONObject saleOrderobj = callSaleOrder(nafaes, request);
             if (saleOrderobj == null) {
                 LOG.debug("======> Nafaes SO Failed to Process the Sell Order service call");
                 return ErrorCodeMora.ERR_100138.updateResultObject(result);
@@ -70,12 +71,12 @@ public class NafaesSO implements JavaService2 {
      * 
      * @param nafaesObj
      */
-    private JSONObject callSaleOrder(JSONObject nafaesObj) {
+    private JSONObject callSaleOrder(JSONObject nafaesObj, DataControllerRequest request) {
         JSONObject saleOrderResponse = null;
         try {
             Map<String, Object> inputParam = new HashMap<>();
             inputParam.put("uuid", generateUUID() + "-SO");
-            inputParam.put("accessToken", getAccessToken());
+            inputParam.put("accessToken", getAccessToken(request));
             inputParam.put("referenceNo", nafaesObj.getString("referencenumber"));
             inputParam.put("orderType", "SO");
             inputParam.put("lng", "2");
@@ -174,15 +175,18 @@ public class NafaesSO implements JavaService2 {
     /**
      * @return
      */
-    private static String getAccessToken() {
+    private static String getAccessToken(DataControllerRequest dataControllerRequest) {
         LOG.debug("==========> Nafaes - excuteLogin - Begin");
         String authToken = null;
 
-        String loginURL = "https://testapi.nafaes.com/oauth/token?grant_type=password&username=APINIG1102&client_id=IFCSUD2789";
+        String loginURL = EnvironmentConfigurationsMora.CUSTOM_NAFAES_URL.getValue(dataControllerRequest)
+                + "oauth/token?grant_type=password" + "&username="
+                + EnvironmentConfigurationsMora.NAFAES_USERNAME.getValue(dataControllerRequest) + "&client_id="
+                + EnvironmentConfigurationsMora.NAFAES_CLIENT_ID.getValue(dataControllerRequest);
         LOG.debug("==========> Login URL  :: " + loginURL);
         HashMap<String, String> paramsMap = new HashMap<>();
-        paramsMap.put("password", "<fq$h(59@3");
-        paramsMap.put("client_secret", "$69$is9@n>");
+        paramsMap.put("password", EnvironmentConfigurationsMora.NAFAES_PASSWORD.getValue(dataControllerRequest));
+        paramsMap.put("client_secret", EnvironmentConfigurationsMora.NAFAES_CLIENT_SECRET.getValue(dataControllerRequest));
 
         HashMap<String, String> headersMap = new HashMap<String, String>();
 
