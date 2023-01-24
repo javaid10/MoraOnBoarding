@@ -50,6 +50,8 @@ public class NafaesSO implements JavaService2 {
             }
             String saleOrderStatus = saleOrderobj.getString("status");
             if (StringUtils.equalsIgnoreCase(saleOrderStatus, "success")) {
+                // TODO update Nafaes sale Order to 2
+                updateNafaesData(nafaes);
                 String customerApplicationId = getCustomerApplicationId(nafaes.getString("applicationid"));
                 updateCustomerApplicationData(customerApplicationId);
             }
@@ -96,6 +98,28 @@ public class NafaesSO implements JavaService2 {
      * @param dataControllerRequest
      * @return
      */
+    private void updateNafaesData(JSONObject nafaesObj) {
+        String nafaesUpdateResponse = null;
+        try {
+            LOG.debug("======> NafaesSO updateNafaesData " + nafaesObj.getString("id"));
+            Map<String, Object> inputParams = new HashMap<>();
+            inputParams.put("id", nafaesObj.getString("id"));
+            inputParams.put("sellorder", "2");
+            nafaesUpdateResponse = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
+                    .withOperationId("dbxdb_nafaes_update").withRequestParameters(inputParams).build()
+                    .getResponse();
+        } catch (DBPApplicationException e) {
+            LOG.debug("======> Error while processing the nafaes update");
+        }
+        LOG.debug("======> Update Customer Application Table: " + nafaesUpdateResponse);
+    }
+    
+    /**
+     * 
+     * @param getCustomerData
+     * @param dataControllerRequest
+     * @return
+     */
     private JSONObject getNafaesData() {
         JSONObject nafaesObj = null;
         try {
@@ -103,6 +127,7 @@ public class NafaesSO implements JavaService2 {
             StringBuilder filter = new StringBuilder();
             filter.append("purchaseorder eq 1").append(" and ");
             filter.append("sellorder eq null").append(" and ");
+            filter.append("sellorder ne 2").append(" and ");
             filter.append("transferorder eq null").append(" and ");
             filter.append("createdts gt ").append(get22HoursBeforeCurrentDate()).append(" and ");
             filter.append("createdts lt ").append(getCurrentDate());
