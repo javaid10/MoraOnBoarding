@@ -57,7 +57,7 @@ public class NafaesSO implements JavaService2 {
             }
         }
         LOG.debug("======> NafaesSO - End");
-        return null;
+        return result;
     }
 
     public static void main(String[] args) {
@@ -127,7 +127,6 @@ public class NafaesSO implements JavaService2 {
             StringBuilder filter = new StringBuilder();
             filter.append("purchaseorder eq 1").append(" and ");
             filter.append("sellorder eq null").append(" and ");
-            filter.append("sellorder ne 2").append(" and ");
             filter.append("transferorder eq null").append(" and ");
             filter.append("createdts gt ").append(get22HoursBeforeCurrentDate()).append(" and ");
             filter.append("createdts lt ").append(getCurrentDate());
