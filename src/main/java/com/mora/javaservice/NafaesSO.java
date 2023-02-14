@@ -50,23 +50,15 @@ public class NafaesSO implements JavaService2 {
             }
             String saleOrderStatus = saleOrderobj.getString("status");
             if (StringUtils.equalsIgnoreCase(saleOrderStatus, "success")) {
-                // TODO update Nafaes sale Order to 2
                 updateNafaesData(nafaes);
-                String customerApplicationId = getCustomerApplicationId(nafaes.getString("applicationid"));
-                updateCustomerApplicationData(customerApplicationId);
+                if (nafaes.has("applicationid")) {
+                    String customerApplicationId = getCustomerApplicationId(nafaes.getString("applicationid"));
+                    updateCustomerApplicationData(customerApplicationId);
+                }
             }
         }
         LOG.debug("======> NafaesSO - End");
-        return null;
-    }
-
-    public static void main(String[] args) {
-        JSONObject nafaesData = new JSONObject();
-        if (nafaesData == null || (nafaesData.has("tbl_customerapplication") && nafaesData.getJSONArray("tbl_customerapplication").length() > 0)) {
-            System.out.println("=========");
-        } else {
-            System.out.println("8**********");
-        }
+        return result;
     }
     
     /**
@@ -109,7 +101,7 @@ public class NafaesSO implements JavaService2 {
                     .withOperationId("dbxdb_nafaes_update").withRequestParameters(inputParams).build()
                     .getResponse();
         } catch (DBPApplicationException e) {
-            LOG.debug("======> Error while processing the nafaes update");
+            LOG.debug("======> Error while processing the nafaes update", e);
         }
         LOG.debug("======> Update Customer Application Table: " + nafaesUpdateResponse);
     }
@@ -127,10 +119,9 @@ public class NafaesSO implements JavaService2 {
             StringBuilder filter = new StringBuilder();
             filter.append("purchaseorder eq 1").append(" and ");
             filter.append("sellorder eq null").append(" and ");
-            filter.append("sellorder ne 2").append(" and ");
             filter.append("transferorder eq null").append(" and ");
-            filter.append("createdts gt ").append(get22HoursBeforeCurrentDate()).append(" and ");
-            filter.append("createdts lt ").append(getCurrentDate());
+            // filter.append("createdts gt ").append(get22HoursBeforeCurrentDate()).append(" and ");
+            filter.append("createdts lt ").append(get22HoursBeforeCurrentDate());
             LOG.debug("======> Nafaes - Filter - " + filter);
             inputParams.put("$filter", filter.toString());
             String nafaesData = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
@@ -143,6 +134,17 @@ public class NafaesSO implements JavaService2 {
         }
         return nafaesObj;
     }
+    
+    public static void main(String[] args) {
+        String s = "{\"opstatus\":0,\"tbl_customerapplication\":[],\"httpStatusCode\":0}";
+        JSONObject customerApplicationObj = new JSONObject(s);
+
+        if (customerApplicationObj.getJSONArray("tbl_customerapplication").length() > 0) {
+            String customerApplicationId = customerApplicationObj.getJSONArray("tbl_customerapplication").getJSONObject(0)
+                    .getString("id");
+        }
+    }
+    
 
     /**
      * 
@@ -159,10 +161,12 @@ public class NafaesSO implements JavaService2 {
                     .getResponse();
             LOG.debug("======> NafaesSO -Customer Application Data: " + customerApplicationData);
             JSONObject customerApplicationObj = new JSONObject(customerApplicationData);
-            customerApplicationId = customerApplicationObj.getJSONArray("tbl_customerapplication").getJSONObject(0)
-                    .getString("id");
+            if (customerApplicationObj.getJSONArray("tbl_customerapplication").length() > 0) {
+                customerApplicationId = customerApplicationObj.getJSONArray("tbl_customerapplication").getJSONObject(0)
+                        .getString("id");
+            }
         } catch (Exception ex) {
-            LOG.error("======> Error while processing the getCustomerApplicationData : " + ex);
+            LOG.error("======> Error while processing the getCustomerApplicationData : ", ex);
         }
         return customerApplicationId;
     }
