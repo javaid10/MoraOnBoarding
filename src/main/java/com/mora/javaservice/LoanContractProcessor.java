@@ -168,13 +168,19 @@ public class LoanContractProcessor implements JavaService2 {
                         Float outAmtF = Math.abs(Float.parseFloat(
                                 jsonSchedule.getJSONArray("body").getJSONObject(0)
                                         .optString("outstandingAmount")));
-                        Float chargeAmtF = Float.parseFloat(
-                                jsonSchedule.getJSONArray("body").getJSONObject(0)
-                                        .optString("chargeAmount"));
-                        Float taxAmtF = Float
-                                .parseFloat(jsonSchedule.getJSONArray("body")
-                                        .getJSONObject(0)
-                                        .optString("taxAmount"));
+                        Float chargeAmtF=0.0f, taxAmtF=0.0f;
+                        try {
+                            chargeAmtF = Float.parseFloat(
+                                    jsonSchedule.getJSONArray("body").getJSONObject(0)
+                                    .optString("chargeAmount"));
+                            taxAmtF = Float
+                                    .parseFloat(jsonSchedule.getJSONArray("body")
+                                            .getJSONObject(0)
+                                            .optString("taxAmount"));
+                        } catch (NumberFormatException ne) {
+                            logger.error("=====> Error while processing the request", ne);
+                            
+                        }
 
                         for (int i = 1; i < jsonSchedule.getJSONArray("body").length(); i++) {
                             totalInterest = totalInterest
