@@ -1,5 +1,9 @@
 package com.mora.javaservice;
 
+import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -14,11 +18,22 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.XML;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 import com.dbp.core.error.DBPApplicationException;
 import com.dbp.core.fabric.extn.DBPServiceExecutorBuilder;
@@ -142,6 +157,7 @@ public class LoanContractProcessor implements JavaService2 {
                                 .optString("sadadNumber");
 
                         JSONArray instDates = new JSONArray();
+                        
                         JSONArray months = new JSONArray();
                         JSONArray outstandingAmountR = new JSONArray();
                         JSONArray outstandSched = new JSONArray();
@@ -168,15 +184,40 @@ public class LoanContractProcessor implements JavaService2 {
                         Float outAmtF = Math.abs(Float.parseFloat(
                                 jsonSchedule.getJSONArray("body").getJSONObject(0)
                                         .optString("outstandingAmount")));
-                        Float chargeAmtF = Float.parseFloat(
-                                jsonSchedule.getJSONArray("body").getJSONObject(0)
-                                        .optString("chargeAmount"));
-                        Float taxAmtF = Float
-                                .parseFloat(jsonSchedule.getJSONArray("body")
-                                        .getJSONObject(0)
-                                        .optString("taxAmount"));
-
-                        for (int i = 1; i < jsonSchedule.getJSONArray("body").length(); i++) {
+                        
+                        
+                        
+                        String chrgAmount = jsonSchedule.optJSONArray("body").optJSONObject(0)
+                                .optString("chargeAmount");
+                        String taxAmtString = jsonSchedule.optJSONArray("body").optJSONObject(0)
+                                .optString("taxAmount");
+                        logger.error("Values chrgAmount =======>>>" + chrgAmount);
+                        
+                        Float chargeAmtF = 0.0f;
+                        Float taxAmtF = 0.0f;
+                        
+                        if(chrgAmount.isEmpty() && chrgAmount == "") {
+                            logger.error("Values =======>>> in if ");
+                            chargeAmtF = 0.0f;
+                        }else {
+                            logger.error("Values =======>>> in else ");
+                            chargeAmtF = Float.parseFloat(
+                                    jsonSchedule.optJSONArray("body").optJSONObject(0)
+                                            .optString("chargeAmount"));
+                        }
+                        
+                        if(taxAmtString.isEmpty() && taxAmtString == "") {
+                            logger.error("Values =======>>> in if ");
+                            taxAmtF = 0.0f;
+                        }else {
+                            logger.error("Values =======>>> in else ");
+                            taxAmtF = Float.parseFloat(
+                                    jsonSchedule.optJSONArray("body").optJSONObject(0)
+                                            .optString("taxAmount"));
+                        }
+        
+                        int j = (chargeAmtF == 0.0f && taxAmtF == 0.0f)? 0:1;
+                        for (int i = j; i < jsonSchedule.getJSONArray("body").length(); i++) {
                             totalInterest = totalInterest
                                     + Float.parseFloat(jsonSchedule
                                             .getJSONArray("body")
@@ -209,12 +250,14 @@ public class LoanContractProcessor implements JavaService2 {
                                     jsonSchedule.getJSONArray("body")
                                             .getJSONObject(i)
                                             .optString("outstandingAmount"));
-                            months.put(i);
+                            months.put(i+1);
                         }
 
                         Float loanINt = Float.valueOf(loanAmount) + totalInterest;
                         JSONArray outSched = new JSONArray();
-                        for (int i = 1; i < jsonSchedule.getJSONArray("body").length(); i++) {
+                        
+                        j = (chargeAmtF == 0.0f && taxAmtF == 0.0f)? 0:1;
+                        for (int i = j; i < jsonSchedule.getJSONArray("body").length(); i++) {
                             logger.error("Values herere=======>>>");
                             String totAm = jsonSchedule
                                     .getJSONArray("body")
@@ -380,7 +423,7 @@ public class LoanContractProcessor implements JavaService2 {
                                 .checkNullString(String.valueOf(totalRepayAmount)));
 
                         inputContract.put(
-                                "$total_payment_amount_with_administrative_fees_and_selling_expenses _inclusive_tax",
+                                "$total_payment_amount_with_administrative_fees_and_selling_expenses_inclusive_tax",
                                 UtilServices.checkNullString(String
                                         .valueOf(df.format(totalAmt))));
 
@@ -516,6 +559,7 @@ public class LoanContractProcessor implements JavaService2 {
                                         .getJSONObject(0).optString("id"),
                                 sabbNumber, sadadNumber, Float.toString(totalInterest));
                         logger.error("Update Saab and sadad number" + resSaab);
+                       
                         JSONObject loanContractJson = new JSONObject(loanContractPayload);
                         loanContractJson.put("months", months);
                         loanContractJson.put("installment_date", instDates);
@@ -525,7 +569,40 @@ public class LoanContractProcessor implements JavaService2 {
                         loanContractJson.put("cost_of_loan", interestAmount);
                         loanContractJson.put("principal_amount", principalAmount);
 
-                        logger.error("======> Loan Contract Payload = 2 " + loanContractJson);
+                        
+                        /*********************************************************/
+                        
+                        JSONObject mainXMlJsonObj = new JSONObject(loanContractPayload);
+                        mainXMlJsonObj.put("INSTALLMENT_DATES", new JSONObject().put("INSTALLMENT_DATE", instDates));
+                        mainXMlJsonObj.put("OUTSTANDING_AMOUNTS", new JSONObject().put("OUTSTANDING_AMOUNT", outSched));
+                        mainXMlJsonObj.put("REMAINING_PRINCIPAL_AMOUNTS", new JSONObject().put("REMAINING_PRINCIPAL_AMOUNT", outstandingAmount));
+                        mainXMlJsonObj.put("TOTALLY_MONTHLY_AMOUNTS", new JSONObject().put("TOTALLY_MONTHLY_AMOUNT", totalAmount));
+                        mainXMlJsonObj.put("COST_OF_LOANS", new JSONObject().put("COST_OF_LOAN", interestAmount));
+                        mainXMlJsonObj.put("PRINCIPAL_AMOUNTS", new JSONObject().put("PRINCIPAL_AMOUNT", principalAmount));
+                        
+                        
+                        
+                        logger.error("======> Loan Contract Payload = 2 JSON " + mainXMlJsonObj);
+                        String cnvrt = "<" + "root" + ">" + XML.toString(mainXMlJsonObj)
+                        + "</" + "root" + ">";
+                        
+                        logger.error("Converted = " + cnvrt);
+                        
+                        
+                        File xmlFILE=new File("/home/mora/MockFiles/UATxmldata.xml");
+                        xmlFILE.setReadable(true);
+                        xmlFILE.setReadable(true, false);
+                        xmlFILE.setExecutable(true, false);
+                        xmlFILE.setWritable(true, false);
+                        if((!xmlFILE.exists())) {
+                            xmlFILE.createNewFile();
+                        }
+                        PrintWriter pw=new PrintWriter(xmlFILE);
+                        pw.println(prettyPrintXml(cnvrt));
+                        pw.close();
+                        
+                        
+                        /***************************************************/
 
                         HashMap<String, String> headersMap = new HashMap<String, String>();
                         String endPointResponse = com.mora.util.HTTPOperations
@@ -571,6 +648,34 @@ public class LoanContractProcessor implements JavaService2 {
         }
 
         return result;
+    }
+    
+    public String prettyPrintXml(String xmlStringToBeFormatted) {
+        String formattedXmlString = null;
+        try {
+            logger.error("prettyPrintXml = ");
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setValidating(true);
+            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            InputSource inputSource = new InputSource(new StringReader(xmlStringToBeFormatted));
+            Document document = documentBuilder.parse(inputSource);
+
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+
+            StreamResult streamResult = new StreamResult(new StringWriter());
+            DOMSource dOMSource = new DOMSource(document);
+            transformer.transform(dOMSource, streamResult);
+            formattedXmlString = streamResult.getWriter().toString().trim();
+            
+            logger.error("formattedXmlString = " + formattedXmlString);
+        } catch (Exception ex) {
+            ex.printStackTrace(System.err);
+            logger.error("prettyPrintXml Exception= " + ex);
+        }
+        return formattedXmlString;
     }
 
     private String calcAdminFees(String loanAmount, String adminFeesE) {

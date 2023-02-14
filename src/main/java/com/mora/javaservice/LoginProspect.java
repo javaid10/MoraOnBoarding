@@ -74,7 +74,7 @@ public class LoginProspect implements JavaService2 {
                 
                 
                 if (!customerObj.getJSONArray("customer").getJSONObject(0).has("currentAppId")) {
-                    return ErrorCodeMora.ERR_100135.buildResponseForFailedLogin(result);
+                    return ErrorCodeMora.ERR_660043.buildResponseForFailedLogin(result);
                 }
                 
                 String appId = customerObj.getJSONArray("customer").getJSONObject(0).getString("currentAppId");

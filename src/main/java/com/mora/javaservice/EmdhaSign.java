@@ -88,6 +88,8 @@ public class EmdhaSign implements JavaService2 {
                                     jsonRes.optJSONArray("returnValues").getJSONObject(0).optString("documentHash")));
                             result.addParam(new Param("transactionId",
                                     jsonRes.optJSONArray("returnValues").getJSONObject(0).optString("transactionId")));
+                            
+                            incrementSanadSignCountDBCall(dcRequest.getParameter("nationalId"));
                         }
                     }
 
@@ -217,4 +219,17 @@ public class EmdhaSign implements JavaService2 {
         }
         return check;
     }
+    
+    
+    private void incrementSanadSignCountDBCall(String nationalId) {
+        try {
+            Map<String, Object> inputParams = new HashMap<>();
+            inputParams.put("nationalId", nationalId);
+            DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices").withOperationId("dbxdb_sp_increment_sanad_sign_count").withRequestParameters(inputParams).build().getResponse();
+        } catch (Exception ex) {
+            logger.error("ERROR incrementSanadSignCountDBCall :: " + ex);
+        }
+    }
+    
+    
 }

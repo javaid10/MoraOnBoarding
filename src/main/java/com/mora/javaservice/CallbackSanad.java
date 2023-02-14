@@ -1,6 +1,7 @@
 package com.mora.javaservice;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
@@ -37,6 +38,10 @@ public class CallbackSanad implements JavaService2 {
         String res = DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices")
                 .withOperationId("dbxdb_sp_update_sanad_approval_by_applicationID").withRequestParameters(requestParam)
                 .build().getResponse();
+        
+        customerApplicationJourneyCompletionDBCall(request.getParameter("reference_id"));
+        sanadSignCompleteDBCall(request.getParameter("reference_id"));
+        
         String requestJson = new ObjectMapper().writeValueAsString(requestParam);
 
         if (auditLogData(request, response, requestJson, res)) {
@@ -93,4 +98,27 @@ public class CallbackSanad implements JavaService2 {
         }
         return false;
     }
+    
+    private void customerApplicationJourneyCompletionDBCall(String applicationID) {
+        try {
+            Map<String, Object> inputParams = new HashMap<>();  
+            inputParams.put("applicationID", applicationID);
+            DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices").withOperationId("dbxdb_sp_customer_application_journey_complete").withRequestParameters(inputParams).build().getResponse();
+        } catch (Exception ex) {
+            logger.error("ERROR customerApplicationJourneyCompletionDBCall :: " + ex);
+        }
+    }
+
+    private void sanadSignCompleteDBCall(String applicationID) {
+        try {
+            Map<String, Object> inputParams = new HashMap<>();
+            inputParams.put("applicationID", applicationID);
+            DBPServiceExecutorBuilder.builder().withServiceId("DBMoraServices").withOperationId("dbxdb_sp_sanad_sign_complete").withRequestParameters(inputParams).build().getResponse();
+        } catch (Exception ex) {
+            logger.error("ERROR sanadSignCompleteDBCall :: " + ex);
+        }
+    }
+    
+    
+    
 }
