@@ -5,8 +5,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.dbp.core.error.DBPApplicationException;
@@ -20,6 +22,7 @@ import com.konylabs.middleware.dataobject.Result;
 import com.konylabs.middleware.exceptions.MiddlewareException;
 import com.mora.util.EnvironmentConfigurationsMora;
 import com.mora.util.ErrorCodeMora;
+import com.mora.util.HTTPOperations;
 
 public class NafaesPO implements JavaService2 {
     private static final Logger logger = LogManager.getLogger(NafaesPO.class);
@@ -76,7 +79,7 @@ public class NafaesPO implements JavaService2 {
                         EnvironmentConfigurationsMora.LANGUAGE_CODE.getValue() != null
                                 ? EnvironmentConfigurationsMora.LANGUAGE_CODE.getValue()
                                 : "");
-                requestParam.put("accessToken", request.getParameter("accessToken"));
+                requestParam.put("accessToken", getAccessToken(request));
                 logger.error("Inputparams", requestParam);
                 res = DBPServiceExecutorBuilder.builder().withServiceId("NafaesRestAPI")
                         .withOperationId("PurchaseOrder_PushMethod").withRequestParameters(requestParam).build()
@@ -128,6 +131,53 @@ public class NafaesPO implements JavaService2 {
             logger.error("Error in Result object creation", e);
         }
         return result;
+    }
+    
+    /**
+     * @return
+     */
+    private static String getAccessToken(DataControllerRequest dataControllerRequest) {
+        logger.debug("==========> Nafaes PO - excuteLogin - Begin");
+        String authToken = null;
+
+        String loginURL = EnvironmentConfigurationsMora.CUSTOM_NAFAES_URL.getValue(dataControllerRequest)
+                + "oauth/token?grant_type=password" + "&username="
+                + EnvironmentConfigurationsMora.NAFAES_USERNAME.getValue(dataControllerRequest) + "&client_id="
+                + EnvironmentConfigurationsMora.NAFAES_CLIENT_ID.getValue(dataControllerRequest);
+        logger.debug("==========> Login URL  :: " + loginURL);
+        HashMap<String, String> paramsMap = new HashMap<>();
+        paramsMap.put("password", EnvironmentConfigurationsMora.NAFAES_PASSWORD.getValue(dataControllerRequest));
+        paramsMap.put("client_secret", EnvironmentConfigurationsMora.NAFAES_CLIENT_SECRET.getValue(dataControllerRequest));
+
+        HashMap<String, String> headersMap = new HashMap<String, String>();
+
+        String endPointResponse = HTTPOperations.hitPOSTServiceAndGetResponse(loginURL, paramsMap, null, headersMap);
+        JSONObject responseJson = getStringAsJSONObject(endPointResponse);
+        logger.debug("==========> responseJson :: " + responseJson);
+        authToken = responseJson.getString("access_token");
+        logger.debug("==========> authToken :: " + authToken);
+        logger.debug("==========> Nafaes PO - excuteLogin - End");
+        return authToken;
+    }
+    
+    /**
+     * Converts the given String into the JSONObject
+     *
+     * @param jsonString
+     * @return
+     */
+    public static JSONObject getStringAsJSONObject(String jsonString) {
+        JSONObject generatedJSONObject = new JSONObject();
+        if (StringUtils.isBlank(jsonString)) {
+            return null;
+        }
+        try {
+            generatedJSONObject = new JSONObject(jsonString);
+            return generatedJSONObject;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private String getCustomerDetails(String nationalId) throws DBPApplicationException {
