@@ -113,7 +113,7 @@ public class NafaesPO implements JavaService2 {
                 UUID uuid = UUID.randomUUID();
 
                 if (updateNafaesSO(uuid.toString(), request.getParameter("ApplicationID"),
-                        request.getParameter("nationalId"), request.getParameter("accessToken"),
+                        request.getParameter("nationalId"), getAccessToken(request),
                         JsonResponse.getJSONArray("response").getJSONObject(0).getString("referenceNo"))) {
                     result.addParam("updateStatus", "success");
 
@@ -193,11 +193,7 @@ public class NafaesPO implements JavaService2 {
     public boolean preprocess(DataControllerRequest request, Result result) {
         boolean flag = false;
         // java function to get accesstoken from oauth provider
-        if (request.getParameter("accessToken").toString().equals("")) {
-
-            result = ErrorCodeMora.ERR_100123.updateResultObject(result);
-
-        } else if (request.getParameter("nationalId").toString().equals("")) {
+        if (request.getParameter("nationalId").toString().equals("")) {
             result = ErrorCodeMora.ERR_100118.updateResultObject(result);
         } else {
             // if (getMarketStatus(request, result)) {
