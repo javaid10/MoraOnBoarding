@@ -421,6 +421,8 @@ public class LoanContractProcessor implements JavaService2 {
                         Float totalRepayAmount = totalInterest + Float.parseFloat(loanAmount);
                         inputContract.put("$total_repayment_amount", UtilServices
                                 .checkNullString(String.valueOf(totalRepayAmount)));
+                                inputContract.put("$second_loan_reference", UtilServices
+                                .checkNullString(sadadNumber);
 
                         inputContract.put(
                                 "$total_payment_amount_with_administrative_fees_and_selling_expenses_inclusive_tax",
