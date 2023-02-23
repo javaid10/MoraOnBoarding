@@ -3,18 +3,26 @@ package com.mora.javaservice;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
+import com.dbp.core.api.factory.BusinessDelegateFactory;
+import com.dbp.core.api.factory.impl.DBPAPIAbstractFactoryImpl;
 import com.dbp.core.error.DBPApplicationException;
 import com.dbp.core.fabric.extn.DBPServiceExecutorBuilder;
+import com.kony.dbputilities.util.HelperMethods;
 import com.konylabs.middleware.common.JavaService2;
 import com.konylabs.middleware.controller.DataControllerRequest;
 import com.konylabs.middleware.controller.DataControllerResponse;
 import com.konylabs.middleware.dataobject.Result;
 import com.konylabs.middleware.session.Session;
 import com.mora.util.ErrorCodeMora;
+import com.temenos.dbx.product.dto.DBXResult;
+import com.temenos.dbx.product.dto.PasswordHistoryDTO;
+import com.temenos.dbx.product.dto.PasswordLockoutSettingsDTO;
+import com.temenos.dbx.product.usermanagement.businessdelegate.api.PasswordHistoryBusinessDelegate;
 import com.temenos.infinity.api.commons.encrypt.BCrypt;
 import com.temenos.onboarding.crypto.PasswordGenerator;
 
@@ -34,6 +42,12 @@ public class ForgotResetPassword implements JavaService2 {
         
         Result result = new Result();
         String userName = dcRequest.getParameter("nationalId").toString();
+        String password = dcRequest.getParameter("password").toString();
+        
+        if (StringUtils.isBlank(password)) {
+            result = ErrorCodeMora.ERR_66007.updateResultObject(result);
+            return result;
+        }
 
         HashMap<String, Object> inputParams = new HashMap<String, Object>();
         inputParams.put("$filter", "UserName eq " + userName);
@@ -44,11 +58,27 @@ public class ForgotResetPassword implements JavaService2 {
         
         JSONObject customerObj = new JSONObject(customerResponse);
         String customerId = customerObj.getJSONArray("customer").getJSONObject(0).getString("id");
+        
+        Boolean isPreviousPassword = checkForPasswordEntry(customerId, password, dcRequest);
+        if (isPreviousPassword) {
+            result = ErrorCodeMora.ERR_100146.updateResultObject(result);
+            return result;
+        }
         String updatePasswordResponse = updateCustomerResetPassword(dcRequest, result, customerId);
         Map<String, String> customerCommunication = getEmailAndMobileNumber(result, dcRequest, customerId);
 
         JSONObject updatePasswordObj = new JSONObject(updatePasswordResponse);
         if (updatePasswordObj.get("updatedRecords").toString().equals("1")) {
+            PasswordHistoryBusinessDelegate passwordHistoryBusinessDelegate = (PasswordHistoryBusinessDelegate)((BusinessDelegateFactory)DBPAPIAbstractFactoryImpl.getInstance().getFactoryInstance(BusinessDelegateFactory.class)).getBusinessDelegate(PasswordHistoryBusinessDelegate.class);
+            PasswordHistoryDTO dto = new PasswordHistoryDTO();
+            dto.setId(HelperMethods.getNewId());
+            dto.setCustomer_id(customerId);
+            PasswordGenerator pwdGenerator = new PasswordGenerator();
+            dto.setPreviousPassword(pwdGenerator.hashPassword(password)); 
+            dto.setIsNew(true);
+            DBXResult dbxResponse = passwordHistoryBusinessDelegate.update(dto, dcRequest.getHeaderMap());
+            logger.debug("======> Password History Update " + dbxResponse);
+            
             result.addParam("status", "Password Reset successful");
             result = ErrorCodeMora.ERR_60000.updateResultObject(result);
             logger.debug("Password Reset successfully");
@@ -83,6 +113,31 @@ public class ForgotResetPassword implements JavaService2 {
         logger.error("======> Response from updatePassword  : " + res);
         return res;
     }
+    
+    /**
+     * 
+     * @param customerId
+     * @param password
+     * @param dcRequest
+     * @return
+     */
+    private Boolean checkForPasswordEntry (String customerId, String password, DataControllerRequest dcRequest) {
+        PasswordHistoryBusinessDelegate passwordHistoryBusinessDelegate = (PasswordHistoryBusinessDelegate)((BusinessDelegateFactory)DBPAPIAbstractFactoryImpl.getInstance().getFactoryInstance(BusinessDelegateFactory.class)).getBusinessDelegate(PasswordHistoryBusinessDelegate.class);
+        DBXResult response = passwordHistoryBusinessDelegate.getPasswordLockoutSetting(dcRequest.getHeaderMap());
+        PasswordLockoutSettingsDTO lockoutSettingsDTO = (PasswordLockoutSettingsDTO)response.getResponse();
+        
+        PasswordHistoryDTO passwordHistoryDTO = new PasswordHistoryDTO();
+        passwordHistoryDTO.setCustomer_id(customerId);
+   
+        if (passwordHistoryDTO.checkForPasswordEntry(lockoutSettingsDTO.getPasswordHistoryCount(), password)) {
+         return false;
+        } else {
+            logger.debug("======> Password is already present in the previous " + lockoutSettingsDTO.getPasswordHistoryCount() + " passwords.");
+            return true;
+        }
+    }
+    
+    
     public Map<String, String> getEmailAndMobileNumber(Result result, DataControllerRequest request, String customerId) {
         Map<String, String> communicationMap = new HashMap<>();
         try {

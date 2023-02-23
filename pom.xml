@@ -18,11 +18,34 @@
 			<artifactId>middleware-api</artifactId>
 			<version>9.3.1.5</version>
 		</dependency>
+
+		<dependency>
+			<groupId>com.kony.dbp</groupId>
+			<artifactId>dbp-commonutilityservices</artifactId>
+			<version>${project.version}</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/dbp-commonutilityservices.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>com.kony.dbp</groupId>
+			<artifactId>dbp-productservices</artifactId>
+			<version>${project.version}</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/dbp-productservices.jar</systemPath>
+		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/com.squareup.okhttp/okhttp -->
 		<dependency>
 			<groupId>com.squareup.okhttp</groupId>
 			<artifactId>okhttp</artifactId>
 			<version>2.7.5</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/commons-configuration/commons-configuration -->
+		<dependency>
+			<groupId>commons-configuration</groupId>
+			<artifactId>commons-configuration</artifactId>
+			<version>1.10</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.kony.dbp/DBPFramework -->
