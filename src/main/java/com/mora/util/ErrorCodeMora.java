@@ -59,7 +59,8 @@ public enum ErrorCodeMora {
     ERR_100142(100142, "OTP Request Failed to Process"),
     ERR_100143(100143, "Failed to get the Loan Contract Document"),
     ERR_100144(100144, "Application Id invalid or no Matching document found"),
-    ERR_100145(100145, "Failed to get the Nafaees PO Order Result");
+    ERR_100145(100145, "Failed to get the Nafaees PO Order Result"),
+    ERR_100146(100112, "Password is already present in the previous");
 
 
     private int errCode;
